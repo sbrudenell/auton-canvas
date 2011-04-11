@@ -1,0 +1,30 @@
+#summary this shows you how to get started with AutonCanvas.
+
+= Sample Code =
+
+the following code draws a circle:
+
+{{{
+<script type="text/javascript" src="auton-canvas.min.js"></script>
+<script text="text/javascript">
+
+window.onload = function() {
+  // create a new canvas attached to the element named "canvas"
+  var canvas = new auton.canvas.Canvas(900, 450, "canvas");
+
+  // add a path object to our canvas. tell it to be a circle centered at (450, 450)
+  var p = canvas.path(['R', 450, 450, 450]);
+
+  // make the circle have a linear gradient fill, from green to transparent
+  p.fill(['#0a0', 'transparent']);
+
+  // update our canvas
+  canvas.draw();
+}
+
+</script>
+...
+<div id="canvas"></div>
+}}}
+
+more to come!
