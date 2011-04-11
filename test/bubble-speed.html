@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+<title>javascript test</title>
+<script type="text/javascript" language="javascript" src="../auton-canvas.js"></script>
+<script type="text/javascript" language="javascript">
+
+var W = 900, H = 450, R = 30;
+var canvas, path;
+
+window.onload = function() {
+  canvas = new auton.canvas.Canvas(W, H, "canvas");
+  path = canvas.path(["r", 50, 50, 50]);
+  path.fill(['#0a0', 'black']);
+  //path.stroke(null);
+  canvas.draw();
+}
+
+function run() {
+  var i, n = Number(document.getElementById("num").value);
+  var data = [], l = 0;
+
+  //var w = Math.random() * W, h = Math.random() * H;
+  var w = 0, h = 0;
+
+  for (i = 0; i < n; i++) {
+    var cx = w + Math.random() * (W - w),
+        cy = h + Math.random() * (H - h),
+        r = Math.random() * R;
+    data.push(
+      "R", cx, cy, r,
+      //"r", cx, cy, r / 2,
+      "Z"
+    );
+  }
+
+  path.data(data);
+  path.bounds(w - R, h - R, W + R, H + R);
+
+  var start = new Date().getTime();
+  canvas.draw();
+  var end = new Date().getTime();
+  setTimeout(function() {
+    var now = new Date().getTime();
+    document.getElementById('output').innerHTML = n + ' in (' + (end - start) + 'ms, ' + (now - start) + 'ms)';
+  }, 0);
+}
+
+</script>
+</head>
+<body>
+<input type="text" id="num" name="num" value="1000" width="5"/><button onclick="run()">run</button><span id="output"></span>
+<div id="canvas"></div>
+</body>
+</html>
