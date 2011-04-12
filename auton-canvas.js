@@ -757,6 +757,8 @@
       return this;
     }
   };
+  pathprot.keep = function() {
+  };
   pathprot.clear = function() {
     this.data([]);
     return this;
@@ -1493,6 +1495,7 @@
 
     // VML PATH
 
+    pathprot._keep = false;
     pathprot._construct = function() {
       pathBaseConstruct.apply(this, arguments);
 
@@ -1506,6 +1509,15 @@
           '" style="position:absolute;margin:0px;padding:0px;"/>';
       var elt = this._elt = dummyElement.firstChild;
       dummyElement.removeChild(elt);
+    };
+    pathprot.keep = function(keep) {
+      if (keep === undefined) {
+        keep = true;
+      }
+      this._keep = !!keep;
+      if (!keep && !(this._mod & MOD_PATH_DATA)) {
+        this._data = undefined;
+      }
     };
     pathprot._draw = function(htx, hty, hsx, hsy) {
       var mod = this._mod,
@@ -1899,6 +1911,10 @@
 
         path = (l ? path.join("") : EMPTY_PATH);
         element.path = path;
+
+        if (!this._keep) {
+          this._data = undefined;
+        }
       }
     };
   } else {
