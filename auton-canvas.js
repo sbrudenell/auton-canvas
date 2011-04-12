@@ -657,33 +657,49 @@
   textprot.text = function(text) {
     if (text === undefined) {
       return this._text;
-    } else if (text !== this._text) {
-      this._text = text;
-      this._mod |= MOD_TEXT;
+    } else {
+      if (text !== this._text) {
+        this._text = text;
+        this._mod |= MOD_TEXT;
+      }
+
+      return this;
     }
   };
   textprot.font = function(font) {
     if (font === undefined) {
       return this._font;
-    } else if (font !== this._font) {
-      this._font = font;
-      this._mod |= MOD_FONT;
+    } else {
+      if (font !== this._font) {
+        this._font = font;
+        this._mod |= MOD_FONT;
+      }
+
+      return this;
     }
   };
   textprot.align = function(align) {
     if (align === undefined) {
       return this._align;
-    } else if (align !== this._align) {
-      this._align = align;
-      this._mod |= MOD_ALIGN;
+    } else {
+      if (align !== this._align) {
+        this._align = align;
+        this._mod |= MOD_ALIGN;
+      }
+
+      return this;
     }
   };
   textprot.valign = function(valign) {
     if (valign === undefined) {
       return this._valign;
-    } else if (valign !== this._valign) {
-      this._valign = valign;
-      this._mod |= MOD_VALIGN;
+    } else {
+      if (valign !== this._valign) {
+        this._valign = valign;
+        this._mod |= MOD_VALIGN;
+      }
+
+      return this;
     }
   };
 
@@ -758,6 +774,17 @@
     }
   };
   pathprot.keep = function() {
+    if (keep === undefined) {
+      return this._keep;
+    } else {
+      this._keep = keep = !!keep;
+
+      if (!keep && !(this._mod & MOD_PATH_DATA)) {
+        this._data = undefined;
+      }
+
+      return this;
+    }
   };
   pathprot.clear = function() {
     this.data([]);
@@ -1517,11 +1544,15 @@
     };
     pathprot.keep = function(keep) {
       if (keep === undefined) {
-        keep = true;
-      }
-      this._keep = !!keep;
-      if (!keep && !(this._mod & MOD_PATH_DATA)) {
-        this._data = undefined;
+        return this._keep;
+      } else {
+        this._keep = keep = !!keep;
+
+        if (!keep && !(this._mod & MOD_PATH_DATA)) {
+          this._data = undefined;
+        }
+
+        return this;
       }
     };
     pathprot._draw = function(htx, hty, hsx, hsy) {
