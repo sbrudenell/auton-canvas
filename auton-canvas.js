@@ -779,12 +779,14 @@
     } else {
       this._keep = keep = !!keep;
 
-      if (!keep && !(this._mod & MOD_PATH_DATA)) {
-        this._data = undefined;
+      if (!keep) {
+        this._gc();
       }
 
       return this;
     }
+  };
+  pathprot._gc = function() {
   };
   pathprot.clear = function() {
     this.data([]);
@@ -1542,17 +1544,9 @@
       var elt = this._elt = dummyElement.firstChild;
       dummyElement.removeChild(elt);
     };
-    pathprot.keep = function(keep) {
-      if (keep === undefined) {
-        return this._keep;
-      } else {
-        this._keep = keep = !!keep;
-
-        if (!keep && !(this._mod & MOD_PATH_DATA)) {
-          this._data = undefined;
-        }
-
-        return this;
+    pathprot._gc = function() {
+      if (!this._keep && !(this._mod & MOD_PATH_DATA)) {
+        this._data = undefined;
       }
     };
     pathprot._draw = function(htx, hty, hsx, hsy) {
