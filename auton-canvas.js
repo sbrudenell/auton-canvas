@@ -1393,10 +1393,12 @@
     // VML CANVAS
 
     canvasprot._construct = function() {
+      var elt, s;
+
       canvasBaseConstruct.apply(this, arguments);
 
-      this._elt = document.createElement("div");
-      var s = this._elt.style;
+      elt = this._elt = document.createElement("div");
+      s = elt.style;
 
       s.margin = s.padding = "0px";
       s.overflow = this._overflow ? "visible" : "hidden";
@@ -1431,6 +1433,9 @@
       var elt = this._elt = document.createElement("div"),
           s = elt.style;
 
+      elt.unselectable = "on";
+      s.whiteSpace = "nowrap";
+      s.cursor = "default";
       s.position = "absolute";
       s.margin = s.padding = "0px";
     };
