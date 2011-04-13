@@ -1019,7 +1019,7 @@
     // HTML5 PARENT
 
     parentprot.insertBefore = function(target, before) {
-      var p, index = parentArrayInsertBefore(this, target, before);
+      var p, counts, index = parentArrayInsertBefore(this, target, before);
 
       if (index >= 0) {
         p = this._p;
@@ -1027,22 +1027,24 @@
           p = p._p;
         }
         if (p && p.draw) {
-          canvasDeltaListeners(p, countListeners(this), true);
+          countListeners(this, counts = {});
+          canvasDeltaListeners(p, counts, true);
         }
       }
 
       return this;
     };
     parentprot.remove = function(child) {
-      var p, removedIndex = parentArrayRemove(this, child);
+      var p, counts, removedIndex = parentArrayRemove(this, child);
 
       if (removedIndex >= 0) {
         p = this._p;
         while (p && !p.draw) {
           p = p._p;
         }
-        if (p.draw) {
-          canvasDeltaListeners(p, countListeners(this), false);
+        if (p && p.draw) {
+          countListeners(this, counts = {});
+          canvasDeltaListeners(p, counts, false);
         }
       }
 
