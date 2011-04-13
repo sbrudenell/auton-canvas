@@ -80,7 +80,15 @@
       parentArrayInsertBefore,
       parentArrayRemove,
       canvasBaseConstruct,
-      pathBaseConstruct;
+      pathBaseConstruct,
+      countListeners,
+      nodeArrayAddListener,
+      nodeArrayRemoveListener,
+      nodeDeltaListener,
+      USE_EVENT_TYPE,
+      canvasDeltaListeners,
+      dispatchEvent,
+      createFakeMouseEvent;
 
   if (canvasspace.version) {
     return;
@@ -197,6 +205,49 @@
     if (element && (element.nodeType === 1)) {
       element.appendChild(node._elt);
     }
+  };
+  nodeArrayAddListener = function(node, type, listener) {
+    var i, n, listeners = node._l[type];
+
+    if (!listeners) {
+      listeners = node._l[type] = [];
+    }
+
+    for (i = 0, n = listeners.length; i < n; i++) {
+      if (listener === listeners[i]) {
+        i = -1;
+        break;
+      }
+    }
+    if (i === n) {
+      listeners[n] = listener;
+    }
+
+    return i;
+  };
+  nodeArrayRemoveListener = function(node, type, listener) {
+    var listenersByType = node._l,
+        listeners = listenersByType[type],
+        i = -1, n;
+
+    if (listeners) {
+      for (i = 0, n = listeners.length; i < n; i++) {
+        if (listener === listeners[i]) {
+          break;
+        }
+      }
+      if (i < n) {
+        if (n === 1) {
+          delete listenersByType[type];
+        } else {
+          listeners.splice(i, 1);
+        }
+      } else {
+        i = -1;
+      }
+    }
+
+    return i;
   };
 
   // ELEMENT
@@ -395,19 +446,6 @@
   };
   parentprot.add = function(child) {
     return this.insertBefore(child, undefined);
-  };
-  parentprot.insertBefore = function(target, before) {
-    if (!(target instanceof leafobj || target instanceof groupobj)) {
-      throw "insertBefore: i don't recognize " + target +
-        " as a child i should have";
-    }
-
-    parentArrayInsertBefore(this, target, before);
-    return this;
-  };
-  parentprot.remove = function(target) {
-    parentArrayRemove(this, target);
-    return this;
   };
   parentprot.clear = function() {
     var i, children, n;
@@ -716,6 +754,7 @@
   pathprot._construct = pathBaseConstruct = function() {
     leafprot._construct.apply(this);
     this._data = [];
+    this._l = {};
   };
   pathprot.fill = function(fill, angle) {
     var type, mod = 0, cur = this._fill;
@@ -773,7 +812,7 @@
       return this;
     }
   };
-  pathprot.keep = function() {
+  pathprot.keep = function(keep) {
     if (keep === undefined) {
       return this._keep;
     } else {
@@ -852,10 +891,126 @@
   if (dummyElement && dummyElement.getContext &&
       dummyElement.getContext("2d")) {
 
+    USE_EVENT_TYPE = {
+      mouseover: "mousemove",
+      mouseout: "mousemove"
+    };
+    canvasDeltaListeners = function(canvas, newCountsByType, add) {
+      var countsByType = canvas._lc, type, count, newCount;
+
+      for (type in newCountsByType) {
+        if (newCountsByType.hasOwnProperty(type)) {
+          newCount = newCountsByType[type];
+          type = USE_EVENT_TYPE[type] || type;
+          if (newCount > 0) {
+            count = countsByType[type] || 0;
+            if (add) {
+              if (count === 0) {
+                canvas._elt.addEventListener(type, canvas);
+              }
+              count += newCount;
+            } else {
+              count -= newCount;
+              if (count <= 0) {
+                count = 0;
+                canvas._elt.removeEventListener(type, canvas);
+              }
+            }
+            countsByType[type] = count;
+          }
+        }
+      }
+    };
+    countListeners = function(node, countsByType) {
+      var listenersByType = node._l, listeners, type,
+          children = node._c, i, n;
+
+      if (listenersByType) {
+        for (type in listenersByType) {
+          if (listenersByType.hasOwnProperty(type)) {
+            listeners = listenersByType[type];
+            n = (listeners ? listeners.length : 0);
+            if (n) {
+              countsByType[type] = (countsByType[type] || 0) + n;
+            }
+          }
+        }
+      }
+
+      if (children) {
+        for (i = 0, n = children.length; i < n; i++) {
+          countListeners(children[i], countsByType);
+        }
+      }
+    };
+    nodeDeltaListener = function(node, type, listener, add) {
+      var p, deltas, index = add ?
+            nodeArrayAddListener(node, type, listener) :
+            nodeArrayRemoveListener(node, type, listener);
+
+      if (index >= 0) {
+        p = node._p;
+        while (p && !p.draw) {
+          p = p._p;
+        }
+        if (p && p.draw) {
+          deltas = {};
+          deltas[type] = 1;
+          canvasDeltaListeners(p, deltas, add);
+        }
+      }
+    };
+    dispatchEvent = function(node, e) {
+      var i, n, listeners = node._l[e.type];
+
+      if (listeners) {
+        for (i = 0, n = listeners.length; i < n; i++) {
+          listeners[i].handleEvent(e);
+        }
+      }
+    };
+    createFakeMouseEvent = function(e, type) {
+      var o = document.createEvent("MouseEvents");
+      o.initMouseEvent(type, true, true, null, e.detail, e.screenX, e.screenY,
+        e.clientX, e.clientY, e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
+        e.button, e.relatedTarget);
+      return o;
+    };
+
     // HTML5 PARENT
 
-    parentprot._draw = function(ctx, htx, hty, hsx, hsy) {
-      var i, children, n, child,
+    parentprot.insertBefore = function(target, before) {
+      var p, index = parentArrayInsertBefore(this, target, before);
+
+      if (index >= 0) {
+        p = this._p;
+        while (p && !p.draw) {
+          p = p._p;
+        }
+        if (p && p.draw) {
+          canvasDeltaListeners(p, countListeners(this), true);
+        }
+      }
+
+      return this;
+    };
+    parentprot.remove = function(child) {
+      var p, removedIndex = parentArrayRemove(this, child);
+
+      if (removedIndex >= 0) {
+        p = this._p;
+        while (p && !p.draw) {
+          p = p._p;
+        }
+        if (p.draw) {
+          canvasDeltaListeners(p, countListeners(this), false);
+        }
+      }
+
+      return this;
+    };
+    parentprot._draw = function(ctx, htx, hty, hsx, hsy, testx, testy) {
+      var i, children, n, child, testr, childr,
           tx, ty, sx, sy;
 
       children = this._c;
@@ -868,10 +1023,15 @@
         ty = child._ty * hsy + hty;
 
         if (child._v) {
-          child._draw(ctx, tx, ty, sx, sy);
+          childr = child._draw(ctx, tx, ty, sx, sy, testx, testy);
           child._mod = 0;
+          if (childr) {
+            testr = childr;
+          }
         }
       }
+
+      return testr;
     };
 
     // HTML5 CANVAS
@@ -891,6 +1051,9 @@
         style.position = "absolute";
       }
 
+      element.addEventListener("mouseout", this);
+      this._lc = {};
+
       this._ctx = this._elt.getContext("2d");
     };
     canvasprot._setWidth = function(width) {
@@ -899,16 +1062,68 @@
     canvasprot._setHeight = function(height) {
       this._attr.height = height;
     };
-    canvasprot._baseDraw = function() {
+    canvasprot._baseDraw = function(testx, testy) {
       var ctx = this._ctx;
 
-      // clears canvas
-      ctx.canvas.width = this._width;
+      if (testx === undefined || testy === undefined) {
+        // clears canvas
+        ctx.canvas.width = this._width;
+      }
 
-      this._draw(ctx,
-                 this._tx + this._btx,
-                 this._ty + this._bty,
-                 this._sx, this._sy);
+      return this._draw(ctx,
+        this._tx + this._btx,
+        this._ty + this._bty,
+        this._sx, this._sy,
+        testx, testy);
+    };
+    canvasprot.handleEvent = function(e) {
+      var elt = this._elt, cur,
+          rx = 0, ry = 0,
+          type,
+          node, lastmousenode;
+
+      // voodoo from GWT's MouseEvent, to get x and y relative to our canvas
+
+      type = e.type;
+      lastmousenode = this._lmnode;
+
+      if (type === "mouseout") {
+        node = lastmousenode;
+        this._lmnode = undefined;
+      } else {
+        cur = elt;
+        while (cur.offsetParent) {
+          rx -= cur.scrollLeft;
+          ry -= cur.scrollTop;
+          cur = cur.parentNode;
+        }
+        cur = elt;
+        while (cur) {
+          rx += cur.offsetLeft;
+          ry += cur.offsetTop;
+          cur = cur.offsetParent;
+        }
+
+        rx = e.clientX - rx + (elt.scrollLeft || 0) + (document.scrollLeft || 0);
+        ry = e.clientY - ry + (elt.scrollTop || 0) + (document.scrollTop || 0);
+
+        node = this._baseDraw(rx, ry);
+
+        if (type === "mousemove" && node !== lastmousenode) {
+          if (lastmousenode) {
+            dispatchEvent(lastmousenode, createFakeMouseEvent(e, "mouseout"));
+          }
+          if (node) {
+            dispatchEvent(node, createFakeMouseEvent(e, "mouseover"));
+          }
+        }
+
+        this._lmnode = node;
+      }
+
+      if (node) {
+        dispatchEvent(node, e);
+      }
     };
 
     // HTML5 PLOTTER
@@ -973,18 +1188,29 @@
 
     // HTML5 TEXT
 
-    textprot._draw = function(ctx, tx, ty, sx, sy) {
-      ctx.textAlign = this._align;
-      ctx.textBaseline = (this._valign === TXT_VALIGN_BASELINE ?
-        "alphabetic" : "middle");
-      ctx.font = this._font;
-      ctx.fillStyle = this._stroke;
-      ctx.fillText(this._text, tx, ty);
+    textprot._draw = function(ctx, tx, ty, sx, sy, testx, testy) {
+      if (testx === undefined || testy === undefined) {
+        ctx.textAlign = this._align;
+        ctx.textBaseline = (this._valign === TXT_VALIGN_BASELINE ?
+          "alphabetic" : "middle");
+        ctx.font = this._font;
+        ctx.fillStyle = this._stroke;
+        ctx.fillText(this._text, tx, ty);
+      }
     };
 
     // HTML5 PATH
 
-    pathprot._draw = function(ctx, origtx, origty, origsx, origsy) {
+    pathprot.addEventListener = function(type, listener) {
+      nodeDeltaListener(this, type, listener, true);
+      return this;
+    };
+    pathprot.removeEventListener = function(type, listener) {
+      nodeDeltaListener(this, type, listener, false);
+      return this;
+    };
+    pathprot._draw = function(ctx, origtx, origty, origsx, origsy, testx,
+        testy) {
       var stroke = this._stroke,
           width = this._width,
           fill = this._fill, fillType = typeof fill, pfill,
@@ -993,23 +1219,12 @@
           angle, tanangle,
           i, data, n, cmd,
           cx, cy, r,
-          bx, by, dx, dy;
+          bx, by, dx, dy,
+          test;
 
-      if (width <= 0) {
-        stroke = undefined;
-      }
+      test = !(testx === undefined || testy === undefined);
 
-      if (stroke) {
-        ctx.lineWidth = width;
-        ctx.strokeStyle = stroke;
-        needUntransformed = true;
-      } else {
-        stroke = undefined;
-      }
-
-      if (fillType === "string") {
-        ctx.fillStyle = fill;
-      } else if (fill) {
+      if (fill && fillType !== "string") {
         pfill = this._fillp;
 
         if (this._mod & (MOD_TRANSLATE | MOD_SCALE | MOD_MINS | MOD_MAXS |
@@ -1065,8 +1280,25 @@
         }
 
         fill = pfill;
-        ctx.fillStyle = pfill;
         needUntransformed = true;
+      }
+
+      if (fill && !test) {
+        ctx.fillStyle = fill;
+      }
+
+      if (width <= 0 || (test && !fill)) {
+        stroke = undefined;
+      }
+
+      if (stroke) {
+        ctx.lineWidth = width;
+        if (!test) {
+          ctx.strokeStyle = stroke;
+        }
+        needUntransformed = true;
+      } else {
+        stroke = undefined;
       }
 
       if (stroke || fill) {
@@ -1086,11 +1318,20 @@
               sy = origsy;
             }
 
-            if (fill) {
-              ctx.fill();
-            }
-            if (stroke) {
-              ctx.stroke();
+            if (!test) {
+              if (fill) {
+                ctx.fill();
+              }
+              if (stroke) {
+                ctx.stroke();
+              }
+            } else {
+              if (ctx.isPointInPath(testx, testy)) {
+                if (transformed) {
+                  ctx.restore();
+                }
+                return this;
+              }
             }
 
             ctx.beginPath();
@@ -1127,11 +1368,17 @@
           ctx.restore();
         }
 
-        if (fill) {
-          ctx.fill();
-        }
-        if (stroke) {
-          ctx.stroke();
+        if (!test) {
+          if (fill) {
+            ctx.fill();
+          }
+          if (stroke) {
+            ctx.stroke();
+          }
+        } else {
+          if (ctx.isPointInPath(testx, testy)) {
+            return this;
+          }
         }
       }
     };
@@ -1543,6 +1790,37 @@
           '" style="position:absolute;margin:0px;padding:0px;"/>';
       var elt = this._elt = dummyElement.firstChild;
       dummyElement.removeChild(elt);
+
+      this._lf = {};
+    };
+    pathprot.addEventListener = function(type, listener) {
+      var index = nodeArrayAddListener(this, type, listener), funcs, f;
+
+      if (index >= 0) {
+        f = function() {
+          listener.handleEvent(window.event);
+        };
+        if (!(funcs = this._lf[type])) {
+          funcs = this._lf[type] = [];
+        }
+        funcs[index] = f;
+        this._elt.attachEvent("on" + type, f);
+      }
+
+      return this;
+    };
+    pathprot.removeEventListener = function(type, listener) {
+      var removedIndex = nodeArrayRemoveListener(this, type, listener),
+          funcs, f;
+
+      if (removedIndex >= 0) {
+        funcs = this._lf[type];
+        f = funcs[removedIndex];
+        funcs.splice(removedIndex, 1);
+        this._elt.detachEvent("on" + type, f);
+      }
+
+      return this;
     };
     pathprot._gc = function() {
       if (!this._keep && !(this._mod & MOD_PATH_DATA)) {
