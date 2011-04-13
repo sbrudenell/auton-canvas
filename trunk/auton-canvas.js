@@ -1099,7 +1099,7 @@
       // uncomment when fixed.
       // style.width = style.height = "auto";
 
-      if (this._autonBounds) {
+      if (this._autoBounds) {
         style.position = "absolute";
       }
 
