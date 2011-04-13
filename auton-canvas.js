@@ -1715,6 +1715,7 @@
       s.margin = s.padding = "0px";
       s.overflow = this._overflow ? "visible" : "hidden";
       s.position = "relative";
+      elt.onselectstart = function(){ return false; };
     };
     canvasprot._setWidth = function(width) {
       this._style.width = width + "px";
@@ -1745,7 +1746,6 @@
       var elt = this._elt = document.createElement("div"),
           s = elt.style;
 
-      elt.unselectable = "on";
       s.whiteSpace = "nowrap";
       s.cursor = "default";
       s.position = "absolute";
