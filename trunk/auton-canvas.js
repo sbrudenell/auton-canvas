@@ -88,7 +88,8 @@
       USE_EVENT_TYPE,
       canvasDeltaListeners,
       dispatchEvent,
-      createFakeMouseEvent;
+      createFakeMouseEvent,
+      fillEvent;
 
   if (canvasspace.version) {
     return;
@@ -248,6 +249,36 @@
     }
 
     return i;
+  };
+  fillEvent = function(e, elt) {
+    var ax, ay, cur;
+
+    if (e.clientX !== undefined && e.clientY !== undefined) {
+      // voodoo from GWT to get absolute left/top
+
+      ax = 0;
+      ay = 0;
+
+      cur = elt;
+      while (cur.offsetParent) {
+        ax -= cur.scrollLeft;
+        ay -= cur.scrollTop;
+        cur = cur.parentNode;
+      }
+      cur = elt;
+      while (cur) {
+        ax += cur.offsetLeft;
+        ay += cur.offsetTop;
+        cur = cur.offsetParent;
+      }
+
+      // voodoo from GWT's MouseEvent to get relative left/top
+
+      e.canvasRelativeX = e.clientX - ax + (elt.scrollLeft || 0) +
+        (document.scrollLeft || 0);
+      e.canvasRelativeY = e.clientY - ay + (elt.scrollTop || 0) +
+        (document.scrollTop || 0);
+    }
   };
 
   // ELEMENT
@@ -891,9 +922,13 @@
   if (dummyElement && dummyElement.getContext &&
       dummyElement.getContext("2d")) {
 
-    USE_EVENT_TYPE = {
+    MOUSE_EVENT_MAP = {
       mouseover: "mousemove",
-      mouseout: "mousemove"
+      mouseout: "mousemove",
+      click: undefined,
+      mousedown: undefined,
+      mouseup: undefined,
+      mousemove: undefined
     };
     canvasDeltaListeners = function(canvas, newCountsByType, add) {
       var countsByType = canvas._lc, type, count, newCount;
@@ -901,7 +936,7 @@
       for (type in newCountsByType) {
         if (newCountsByType.hasOwnProperty(type)) {
           newCount = newCountsByType[type];
-          type = USE_EVENT_TYPE[type] || type;
+          type = MOUSE_EVENT_MAP[type] || type;
           if (newCount > 0) {
             count = countsByType[type] || 0;
             if (add) {
@@ -963,6 +998,8 @@
     dispatchEvent = function(node, e) {
       var i, n, listeners = node._l[e.type];
 
+      e.canvasTarget = node;
+
       if (listeners) {
         for (i = 0, n = listeners.length; i < n; i++) {
           listeners[i].handleEvent(e);
@@ -974,6 +1011,8 @@
       o.initMouseEvent(type, true, true, null, e.detail, e.screenX, e.screenY,
         e.clientX, e.clientY, e.ctrlKey, e.altKey, e.shiftKey, e.metaKey,
         e.button, e.relatedTarget);
+      o.canvasRelativeX = e.canvasRelativeX;
+      o.canvasRelativeY = e.canvasRelativeY;
       return o;
     };
 
@@ -1077,37 +1116,19 @@
         testx, testy);
     };
     canvasprot.handleEvent = function(e) {
-      var elt = this._elt, cur,
-          rx = 0, ry = 0,
-          type,
-          node, lastmousenode;
-
-      // voodoo from GWT's MouseEvent, to get x and y relative to our canvas
+      var type, node, lastmousenode, fake;
 
       type = e.type;
       lastmousenode = this._lmnode;
+      fillEvent(e, this._elt);
 
+      // if the mouse left the canvas, make sure the last node to get a mouse
+      // event gets a mouseout.
       if (type === "mouseout") {
         node = lastmousenode;
         this._lmnode = undefined;
       } else {
-        cur = elt;
-        while (cur.offsetParent) {
-          rx -= cur.scrollLeft;
-          ry -= cur.scrollTop;
-          cur = cur.parentNode;
-        }
-        cur = elt;
-        while (cur) {
-          rx += cur.offsetLeft;
-          ry += cur.offsetTop;
-          cur = cur.offsetParent;
-        }
-
-        rx = e.clientX - rx + (elt.scrollLeft || 0) + (document.scrollLeft || 0);
-        ry = e.clientY - ry + (elt.scrollTop || 0) + (document.scrollTop || 0);
-
-        node = this._baseDraw(rx, ry);
+        node = this._baseDraw(e.canvasRelativeX, e.canvasRelativeY);
 
         if (type === "mousemove" && node !== lastmousenode) {
           if (lastmousenode) {
@@ -1118,7 +1139,9 @@
           }
         }
 
-        this._lmnode = node;
+        if (type in MOUSE_EVENT_MAP) {
+          this._lmnode = node;
+        }
       }
 
       if (node) {
@@ -1794,11 +1817,20 @@
       this._lf = {};
     };
     pathprot.addEventListener = function(type, listener) {
-      var index = nodeArrayAddListener(this, type, listener), funcs, f;
+      var index = nodeArrayAddListener(this, type, listener), funcs, f,
+          me = this;
 
       if (index >= 0) {
         f = function() {
-          listener.handleEvent(window.event);
+          var p = me, e = window.event;
+          while (p && !p.draw) {
+            p = p._p;
+          }
+          if (p && p.draw) {
+            fillEvent(e, p._elt);
+          }
+          e.canvasTarget = me;
+          listener.handleEvent(e);
         };
         if (!(funcs = this._lf[type])) {
           funcs = this._lf[type] = [];
