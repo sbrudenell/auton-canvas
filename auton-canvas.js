@@ -85,11 +85,13 @@
       nodeArrayAddListener,
       nodeArrayRemoveListener,
       nodeDeltaListener,
-      USE_EVENT_TYPE,
+      MOUSE_EVENT_MAP,
+      MOUSE_EVENTS,
       canvasDeltaListeners,
       dispatchEvent,
       createFakeMouseEvent,
-      fillEvent;
+      fillEvent,
+      clearCustomEventProps;
 
   if (canvasspace.version) {
     return;
@@ -279,6 +281,11 @@
       e.canvasRelativeY = e.clientY - ay + (elt.scrollTop || 0) +
         (document.scrollTop || 0);
     }
+  };
+  clearCustomEventProps = function(e) {
+    e.canvasRelativeX = undefined;
+    e.canvasRelativeY = undefined;
+    e.canvasTarget = undefined;
   };
 
   // ELEMENT
@@ -924,11 +931,15 @@
 
     MOUSE_EVENT_MAP = {
       mouseover: "mousemove",
-      mouseout: "mousemove",
-      click: undefined,
-      mousedown: undefined,
-      mouseup: undefined,
-      mousemove: undefined
+      mouseout: "mousemove"
+    };
+    MOUSE_EVENTS = {
+      mouseover: 1,
+      mouseout: 1,
+      click: 1,
+      mousedown: 1,
+      mouseup: 1,
+      mousemove: 1
     };
     canvasDeltaListeners = function(canvas, newCountsByType, add) {
       var countsByType = canvas._lc, type, count, newCount;
@@ -941,14 +952,14 @@
             count = countsByType[type] || 0;
             if (add) {
               if (count === 0) {
-                canvas._elt.addEventListener(type, canvas);
+                canvas._elt.addEventListener(type, canvas, false);
               }
               count += newCount;
             } else {
               count -= newCount;
               if (count <= 0) {
                 count = 0;
-                canvas._elt.removeEventListener(type, canvas);
+                canvas._elt.removeEventListener(type, canvas, false);
               }
             }
             countsByType[type] = count;
@@ -998,12 +1009,12 @@
     dispatchEvent = function(node, e) {
       var i, n, listeners = node._l[e.type];
 
-      e.canvasTarget = node;
-
       if (listeners) {
+        e.canvasTarget = node;
         for (i = 0, n = listeners.length; i < n; i++) {
           listeners[i].handleEvent(e);
         }
+        clearCustomEventProps(e);
       }
     };
     createFakeMouseEvent = function(e, type) {
@@ -1027,7 +1038,7 @@
           p = p._p;
         }
         if (p && p.draw) {
-          countListeners(this, counts = {});
+          countListeners(target, counts = {});
           canvasDeltaListeners(p, counts, true);
         }
       }
@@ -1043,7 +1054,7 @@
           p = p._p;
         }
         if (p && p.draw) {
-          countListeners(this, counts = {});
+          countListeners(child, counts = {});
           canvasDeltaListeners(p, counts, false);
         }
       }
@@ -1092,7 +1103,7 @@
         style.position = "absolute";
       }
 
-      element.addEventListener("mouseout", this);
+      element.addEventListener("mouseout", this, false);
       this._lc = {};
 
       this._ctx = this._elt.getContext("2d");
@@ -1118,7 +1129,7 @@
         testx, testy);
     };
     canvasprot.handleEvent = function(e) {
-      var type, node, lastmousenode, fake;
+      var type, node, lastmousenode;
 
       type = e.type;
       lastmousenode = this._lmnode;
@@ -1141,7 +1152,7 @@
           }
         }
 
-        if (type in MOUSE_EVENT_MAP) {
+        if (MOUSE_EVENTS[type]) {
           this._lmnode = node;
         }
       }
@@ -1833,6 +1844,7 @@
           }
           e.canvasTarget = me;
           listener.handleEvent(e);
+          clearCustomEventProps(e);
         };
         if (!(funcs = this._lf[type])) {
           funcs = this._lf[type] = [];
