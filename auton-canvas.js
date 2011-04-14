@@ -31,6 +31,8 @@
       array = Array,
       number = Number,
       string = String,
+      setTimeout = window.setTimeout,
+      clearTimeout = window.clearTimeout,
       math = Math,
       round = math.round,
       ceil = math.ceil,
@@ -271,12 +273,17 @@
     return this;
   };
   nodeprot.visible = function(visible) {
+    var canvas;
+
     if (visible === undefined) {
       return this._v;
     } else {
       if (this._v !== visible) {
         this._v = !!visible;
         this._mod |= MOD_VISIBLE;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
@@ -289,54 +296,76 @@
     return this.visible(false);
   };
   nodeprot.translateX = function(tx) {
+    var canvas;
+
     if (tx === undefined) {
       return this._tx;
     } else {
       if (this._tx !== tx) {
         this._tx = tx;
         this._mod |= MOD_TRANSLATE;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
     }
   };
   nodeprot.translateY = function(ty) {
+    var canvas;
+
     if (ty === undefined) {
       return this._ty;
     } else {
       if (this._ty !== ty) {
         this._ty = ty;
         this._mod |= MOD_TRANSLATE;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
     }
   };
   nodeprot.scaleX = function(sx) {
+    var canvas;
+
     if (sx === undefined) {
       return this._sx;
     } else {
       if (this._sx !== sx) {
         this._sx = sx;
         this._mod |= MOD_SCALE;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
     }
   };
   nodeprot.scaleY = function(sy) {
+    var canvas;
+
     if (sy === undefined) {
       return this._sy;
     } else {
       if (this._sy !== sy) {
         this._sy = sy;
         this._mod |= MOD_SCALE;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
     }
   };
   nodeprot.translate = function(tx, ty) {
+    var canvas;
+
     if (tx === undefined) {
       return [ this._tx, this._ty ];
     } else {
@@ -344,12 +373,17 @@
         this._tx = tx;
         this._ty = ty;
         this._mod |= MOD_TRANSLATE;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
     }
   };
   nodeprot.scale = function(sx, sy) {
+    var canvas;
+
     if (sx === undefined) {
       return [ this._sx, this._sy ];
     } else {
@@ -357,13 +391,16 @@
         this._sx = sx;
         this._sy = sy;
         this._mod |= MOD_SCALE;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
     }
   };
   nodeprot.transform = function(tx, ty, sx, sy) {
-    var mod = 0;
+    var canvas, mod = 0;
 
     if (tx === undefined) {
       return {
@@ -384,6 +421,9 @@
 
       if (mod) {
         this._mod |= mod;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
@@ -598,6 +638,8 @@
   // CANVAS
 
   canvasobj = canvasspace.Canvas = function(width, height, element) {
+    var me = this;
+
     this._construct();
 
     if (this.width) {
@@ -610,6 +652,9 @@
     appendToContainer(this, element);
 
     this._cvs = this;
+    this._df = function() {
+      me.draw();
+    };
   };
   canvasprot = canvasobj.prototype = new parentobj();
   canvasprot._width = 300;
@@ -617,6 +662,7 @@
   canvasprot._autoBounds = false;
   canvasprot._btx = 0;
   canvasprot._bty = 0;
+  canvasprot._at = 1;
   canvasprot._construct = canvasBaseConstruct = function() {
     parentprot._construct.apply(this, arguments);
     this._style = {};
@@ -654,7 +700,8 @@
         attrChanges = this._attr,
         element = this._elt,
         minX, minY,
-        l, t, w, h;
+        l, t, w, h,
+        timer;
 
     if (this._autoBounds) {
       this._recalc();
@@ -687,6 +734,12 @@
 
     this._baseDraw();
     this._mod = 0;
+
+    timer = this._t;
+    if (timer) {
+      clearTimeout(timer);
+    }
+    this._t = undefined;
 
     return this;
   };
@@ -723,6 +776,8 @@
   leafprot._width = 1;
   leafprot._stroke = "black";
   leafprot.stroke = function(color) {
+    var canvas;
+
     if (color === undefined) {
       return this._stroke;
     } else {
@@ -733,18 +788,26 @@
       if (color !== this._stroke) {
         this._stroke = color;
         this._mod |= MOD_STROKE;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
     }
   };
   leafprot.strokeWidth = function(width) {
+    var canvas;
+
     if (width === undefined) {
       return this._width;
     } else {
       if ((width > 0) && width !== this._width) {
         this._width = width;
         this._mod |= MOD_FILL;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
@@ -766,48 +829,68 @@
   textprot._align = TXT_ALIGN_LEFT;
   textprot._valign = TXT_VALIGN_MIDDLE;
   textprot.text = function(text) {
+    var canvas;
+
     if (text === undefined) {
       return this._text;
     } else {
       if (text !== this._text) {
         this._text = text;
         this._mod |= MOD_TEXT;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
     }
   };
   textprot.font = function(font) {
+    var canvas;
+
     if (font === undefined) {
       return this._font;
     } else {
       if (font !== this._font) {
         this._font = font;
         this._mod |= MOD_FONT;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
     }
   };
   textprot.align = function(align) {
+    var canvas;
+
     if (align === undefined) {
       return this._align;
     } else {
       if (align !== this._align) {
         this._align = align;
         this._mod |= MOD_ALIGN;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
     }
   };
   textprot.valign = function(valign) {
+    var canvas;
+
     if (valign === undefined) {
       return this._valign;
     } else {
       if (valign !== this._valign) {
         this._valign = valign;
         this._mod |= MOD_VALIGN;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
@@ -830,7 +913,7 @@
     this._l = {};
   };
   pathprot.fill = function(fill, angle) {
-    var type, mod = 0, cur = this._fill;
+    var type, mod = 0, cur = this._fill, canvas;
 
     if (fill === undefined) {
       return cur;
@@ -867,12 +950,17 @@
         this._angle = angle;
         this._fillp = undefined;
         this._mod |= mod;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
     }
   };
   pathprot.data = function(data) {
+    var canvas;
+
     if (data === undefined) {
       return this._data;
     } else {
@@ -880,6 +968,9 @@
         this._data = data;
         this._mod = (this._mod & ~MOD_BOUND_IS_HINT) |
           MOD_PATH_DATA | MOD_NEEDS_BOUND_RECALC;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
 
       return this;
@@ -1063,12 +1154,18 @@
       var canvas = this._cvs;
       if (canvas) {
         canvasDeltaListeners(canvas, countListeners(child), true);
+        if (!canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
     };
     parentprot._remove = function(child) {
       var canvas = this._cvs;
       if (canvas) {
         canvasDeltaListeners(canvas, countListeners(child), false);
+        if (!canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
       }
     };
     parentprot._draw = function(ctx, htx, hty, hsx, hsy, testx, testy) {
