@@ -85,7 +85,6 @@
       nodeArrayRemoveListener,
       nodeDeltaListener,
       MOUSE_EVENT_MAP,
-      MOUSE_EVENTS,
       canvasDeltaListeners,
       dispatchEvent,
       createFakeMouseEvent,
@@ -969,14 +968,6 @@
       mouseover: "mousemove",
       mouseout: "mousemove"
     };
-    MOUSE_EVENTS = {
-      mouseover: 1,
-      mouseout: 1,
-      click: 1,
-      mousedown: 1,
-      mouseup: 1,
-      mousemove: 1
-    };
     canvasDeltaListeners = function(canvas, newCountsByType, add) {
       var countsByType = canvas._lc, type, count, newCount;
 
@@ -1004,6 +995,10 @@
       }
     };
     countListeners = function(node, countsByType) {
+      if (!countsByType) {
+        countsByType = {};
+      }
+
       var listenersByType = node._l, listeners, type,
           children = node._c, i, n;
 
@@ -1024,6 +1019,8 @@
           countListeners(children[i], countsByType);
         }
       }
+
+      return countsByType;
     };
     nodeDeltaListener = function(node, type, listener, add) {
       var canvas, deltas, index = add ?
@@ -1063,19 +1060,15 @@
     // HTML5 PARENT
 
     parentprot._insertBefore = function(child) {
-      var canvas = this._cvs, counts;
-
+      var canvas = this._cvs;
       if (canvas) {
-        countListeners(child, counts = {});
-        canvasDeltaListeners(canvas, counts, true);
+        canvasDeltaListeners(canvas, countListeners(child), true);
       }
     };
     parentprot._remove = function(child) {
-      var canvas = this._cvs, counts;
-
+      var canvas = this._cvs;
       if (canvas) {
-        countListeners(child, counts = {});
-        canvasDeltaListeners(canvas, counts, false);
+        canvasDeltaListeners(canvas, countListeners(child), false);
       }
     };
     parentprot._draw = function(ctx, htx, hty, hsx, hsy, testx, testy) {
@@ -1167,9 +1160,6 @@
           if (node) {
             dispatchEvent(node, createFakeMouseEvent(e, "mouseover"));
           }
-        }
-
-        if (MOUSE_EVENTS[type]) {
           this._lmnode = node;
         }
       }
