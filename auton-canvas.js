@@ -69,6 +69,7 @@
       pathobj, pathprot,
       extendAndDelete,
       appendToContainer,
+      setCanvas,
       nodeSetBounds,
       setVisible,
       getFirstElementInSubtree,
@@ -77,8 +78,6 @@
       childRemove,
       baselineOffsetCache,
       getBaselineOffset,
-      parentArrayInsertBefore,
-      parentArrayRemove,
       canvasBaseConstruct,
       pathBaseConstruct,
       countListeners,
@@ -118,77 +117,6 @@
       node._mod |= mod;
     }
   };
-  parentArrayInsertBefore = function(parentThis, target, before) {
-    var p = target._p,
-        i, children, n, child,
-        childIndex, beforeIndex;
-
-    if (p && (p !== parentThis)) {
-      p.remove(target);
-      p = undefined;
-    }
-
-    if (!p || (target !== before)) {
-      children = parentThis._c;
-      n = children.length;
-      childIndex = -1;
-      beforeIndex = (before >= 0 ? before : before ? -1 : n);
-
-      for (i = 0; i < n && ((p && childIndex < 0) || beforeIndex < 0); i++) {
-        child = children[i];
-
-        if (child === target) {
-          childIndex = i;
-        } else if (child === before) {
-          beforeIndex = i;
-        }
-      }
-
-      if (beforeIndex < 0) {
-        beforeIndex = n;
-      }
-
-      if ((childIndex >= 0) && (childIndex === beforeIndex - 1)) {
-        beforeIndex = -1;
-      } else {
-        if (childIndex >= 0) {
-          children.splice(childIndex, 1);
-        }
-        if (beforeIndex === n) {
-          children[n] = target;
-        } else {
-          children.splice(beforeIndex, 0, target);
-        }
-
-        target._p = parentThis;
-      }
-    } else {
-      beforeIndex = -1;
-    }
-
-    return beforeIndex;
-  };
-  parentArrayRemove = function(parentThis, target) {
-    var i = -1, children, n;
-
-    if (target._p === parentThis) {
-      children = parentThis._c;
-      for (i = 0, n = children.length; i < n; i++) {
-        if (children[i] === target) {
-          children.splice(i, 1);
-          break;
-        }
-      }
-
-      if (i < n) {
-        target._p = undefined;
-      } else {
-        i = -1;
-      }
-    }
-
-    return i;
-  };
   extendAndDelete = function(target, props) {
     var k, v;
     for (k in props) {
@@ -207,6 +135,15 @@
     }
     if (element && (element.nodeType === 1)) {
       element.appendChild(node._elt);
+    }
+  };
+  setCanvas = function(node, canvas) {
+    var children = node._c, i, n;
+    node._cvs = canvas;
+    if (children) {
+      for (i = 0, n = children.length; i < n; i++) {
+        setCanvas(children[i], canvas);
+      }
     }
   };
   nodeArrayAddListener = function(node, type, listener) {
@@ -294,6 +231,7 @@
   };
   nodeprot = nodeobj.prototype;
   nodeprot._p = undefined;
+  nodeprot._cvs = undefined;
   nodeprot._tx = 0;
   nodeprot._ty = 0;
   nodeprot._sx = 1;
@@ -307,12 +245,7 @@
   nodeprot._construct = function() {
   };
   nodeprot.canvas = function() {
-    var canvas;
-    canvas = this;
-    while (canvas && !canvas.draw) {
-      canvas = canvas._p;
-    }
-    return canvas;
+    return this._cvs;
   };
   nodeprot.parent = function() {
     return this._p;
@@ -485,15 +418,116 @@
   parentprot.add = function(child) {
     return this.insertBefore(child, undefined);
   };
+  parentprot._validate = function(child) {
+    return (child instanceof nodeobj) && !(child instanceof plotterobj) &&
+      !(child instanceof plotregionobj);
+  };
+  parentprot.insertBefore = function(target, before) {
+    var p = target._p, canvas,
+        i, children, n, child,
+        childIndex, beforeIndex;
+
+    if (!this._validate(target)) {
+      throw "i don't recognize " + target + " as a child i should have";
+    }
+
+    if (p && (p !== this)) {
+      p.remove(target);
+      p = undefined;
+    }
+
+    if (!p || (target !== before)) {
+      children = this._c;
+      n = children.length;
+      childIndex = -1;
+      beforeIndex = (before >= 0 ? before : before ? -1 : n);
+
+      for (i = 0; i < n && ((p && childIndex < 0) || beforeIndex < 0); i++) {
+        child = children[i];
+
+        if (child === target) {
+          childIndex = i;
+        } else if (child === before) {
+          beforeIndex = i;
+        }
+      }
+
+      if (beforeIndex < 0) {
+        beforeIndex = n;
+      }
+
+      if ((childIndex >= 0) && (childIndex === beforeIndex - 1)) {
+        beforeIndex = -1;
+      } else {
+        if (childIndex >= 0) {
+          children.splice(childIndex, 1);
+        }
+        if (beforeIndex === n) {
+          children[n] = target;
+        } else {
+          children.splice(beforeIndex, 0, target);
+        }
+
+        target._p = this;
+
+        canvas = this._cvs;
+        if (canvas) {
+          setCanvas(target, canvas);
+        }
+      }
+    } else {
+      beforeIndex = -1;
+    }
+
+    if (beforeIndex >= 0) {
+      this._insertBefore(target, beforeIndex);
+    }
+
+    return this;
+  };
+  parentprot.remove = function(target) {
+    var i = -1, children, n;
+
+    if (target._p === this) {
+      children = this._c;
+      for (i = 0, n = children.length; i < n; i++) {
+        if (children[i] === target) {
+          children.splice(i, 1);
+          break;
+        }
+      }
+
+      if (i < n) {
+        target._p = undefined;
+        if (this._cvs) {
+          setCanvas(target, undefined);
+        }
+      } else {
+        i = -1;
+      }
+    }
+
+    if (i >= 0) {
+      this._remove(target, i);
+    }
+
+    return this;
+  };
   parentprot.clear = function() {
-    var i, children, n;
+    var i, children, n, child, canvas = this._cvs;
 
     children = this._c;
     for (i = 0, n = children.length; i < n; i++) {
-      children[i]._p = undefined;
+      child = children[i];
+      child._p = undefined;
+      if (canvas) {
+        setCanvas(child, undefined);
+      }
+      this._remove(child, i);
     }
 
     children.length = 0;
+
     return this;
   };
   parentprot._recalc = function() {
@@ -575,6 +609,8 @@
     }
 
     appendToContainer(this, element);
+
+    this._cvs = this;
   };
   canvasprot = canvasobj.prototype = new parentobj();
   canvasprot._width = 300;
@@ -990,19 +1026,16 @@
       }
     };
     nodeDeltaListener = function(node, type, listener, add) {
-      var p, deltas, index = add ?
+      var canvas, deltas, index = add ?
             nodeArrayAddListener(node, type, listener) :
             nodeArrayRemoveListener(node, type, listener);
 
       if (index >= 0) {
-        p = node._p;
-        while (p && !p.draw) {
-          p = p._p;
-        }
-        if (p && p.draw) {
+        canvas = node._cvs;
+        if (canvas) {
           deltas = {};
           deltas[type] = 1;
-          canvasDeltaListeners(p, deltas, add);
+          canvasDeltaListeners(canvas, deltas, add);
         }
       }
     };
@@ -1029,37 +1062,21 @@
 
     // HTML5 PARENT
 
-    parentprot.insertBefore = function(target, before) {
-      var p, counts, index = parentArrayInsertBefore(this, target, before);
+    parentprot._insertBefore = function(child) {
+      var canvas = this._cvs, counts;
 
-      if (index >= 0) {
-        p = this._p;
-        while (p && !p.draw) {
-          p = p._p;
-        }
-        if (p && p.draw) {
-          countListeners(target, counts = {});
-          canvasDeltaListeners(p, counts, true);
-        }
+      if (canvas) {
+        countListeners(child, counts = {});
+        canvasDeltaListeners(canvas, counts, true);
       }
-
-      return this;
     };
-    parentprot.remove = function(child) {
-      var p, counts, removedIndex = parentArrayRemove(this, child);
+    parentprot._remove = function(child) {
+      var canvas = this._cvs, counts;
 
-      if (removedIndex >= 0) {
-        p = this._p;
-        while (p && !p.draw) {
-          p = p._p;
-        }
-        if (p && p.draw) {
-          countListeners(child, counts = {});
-          canvasDeltaListeners(p, counts, false);
-        }
+      if (canvas) {
+        countListeners(child, counts = {});
+        canvasDeltaListeners(canvas, counts, false);
       }
-
-      return this;
     };
     parentprot._draw = function(ctx, htx, hty, hsx, hsy, testx, testy) {
       var i, children, n, child, testr, childr,
@@ -1176,47 +1193,18 @@
     };
     plotterprot.element = canvasprot.element;
     plotterprot.add = parentprot.add;
-    plotterprot.insertBefore = function(target, before) {
-      var index, children;
+    plotterprot.insertBefore = parentprot.insertBefore;
+    plotterprot._insertBefore = function(child, beforeIndex) {
+      var children = this._c,
+          beforeElement = (beforeIndex < children.length) ?
+            children[beforeIndex]._elt :
+            null;
 
-      if (!(target instanceof plotregionobj)) {
-        throw "insertBefore: i don't recognize " + target +
-          " as a child i should have";
-      }
-
-      index = parentArrayInsertBefore(this, target, before);
-
-      if (index >= 0) {
-        children = this._c;
-        before = (index < children.length - 1 ? children[index + 1] : null);
-        this._elt.insertBefore(target._elt, before);
-      }
-
-      return this;
+      this._elt.insertBefore(child._elt, beforeElement);
     };
-    plotterprot.remove = function(child) {
-      var removedIndex = parentArrayRemove(this, child);
-
-      if (removedIndex >= 0) {
-        this._elt.removeChild(child._elt);
-      }
-
-      return this;
-    };
-    plotterprot.clear = function() {
-      var element = this._elt,
-          i, children, n, child;
-
-      children = this._c;
-      for (i = 0, n = children.length; i < n; i++) {
-        child = children[i];
-        element.removeChild(child._elt);
-        child._p = undefined;
-      }
-
-      children.length = 0;
-
-      return this;
+    plotterprot.remove = parentprot.remove;
+    plotterprot._remove = function(child) {
+      this._elt.removeChild(child._elt);
     };
 
     plotregionprot = plotregionobj.prototype = new canvasobj();
@@ -1563,7 +1551,7 @@
         }
       }
     };
-    childRemove = function(p, child) {
+    childRemove = function(child) {
       var element = child._elt, parentElement, i, children, n;
 
       if (element) {
@@ -1575,7 +1563,7 @@
       } else {
         children = child._c;
         for (i = 0, n = children.length; i < n; i++) {
-          childRemove(child, children[i]);
+          childRemove(children[i]);
         }
       }
     };
@@ -1609,44 +1597,16 @@
 
     // VML PARENT
 
-    parentprot.insertBefore = function(child, before) {
-      var index = parentArrayInsertBefore(this, child, before), canvas;
+    parentprot._insertBefore = function(child, beforeIndex) {
+      var canvas = this._cvs;
 
-      if ((index >= 0) && (child._elt || child._c.length)) {
-        canvas = this;
-        while (canvas && !canvas.draw) {
-          canvas = canvas._p;
-        }
-
-        if (canvas) {
-          childInsertBeforeElement(child, canvas._elt,
-            getNextElement(this, index));
-        }
+      if (canvas) {
+        childInsertBeforeElement(child, canvas._elt,
+          getNextElement(this, beforeIndex));
       }
-
-      return this;
     };
-    parentprot.remove = function(child) {
-      var removedIndex = parentArrayRemove(this, child);
-
-      if (removedIndex >= 0) {
-        childRemove(this, child);
-        child._p = undefined;
-      }
-
-      return this;
-    };
-    parentprot.clear = function() {
-      var i, children, n;
-
-      children = this._c;
-      for (i = 0, n = children.length; i < n; i++) {
-        childRemove(this, children[i]);
-      }
-
-      children.length = 0;
-
-      return this;
+    parentprot._remove = function(child) {
+      childRemove(child);
     };
     parentprot._draw = function(htx, hty, hsx, hsy) {
       var pmod = this._mod, ptmod = pmod & (MOD_SCALE | MOD_TRANSLATE),
@@ -1835,12 +1795,9 @@
 
       if (index >= 0) {
         f = function() {
-          var p = me, e = window.event;
-          while (p && !p.draw) {
-            p = p._p;
-          }
-          if (p && p.draw) {
-            fillEvent(e, p._elt);
+          var canvas = me._cvs, e = window.event;
+          if (canvas) {
+            fillEvent(e, canvas._elt);
           }
           e.canvasTarget = me;
           listener.handleEvent(e);
@@ -2279,5 +2236,8 @@
     var r = new plotregionobj();
     this.add(r);
     return r;
+  };
+  plotterprot._validate = function(child) {
+    return child instanceof plotregionobj;
   };
 }(window));
