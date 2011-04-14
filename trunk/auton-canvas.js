@@ -57,6 +57,9 @@
       MOD_TEXT = 1024,
       MOD_ALIGN = 2048,
       MOD_VALIGN = 4096,
+      MOD_SRC = 512,
+      MOD_LOAD = 1024,
+      MOD_ORIGIN = 2048,
       MOD_DEFAULT = -1 & ~MOD_BOUND_IS_HINT,
       dummyElement,
       D, O,
@@ -68,6 +71,7 @@
       groupobj,
       leafobj, leafprot,
       textobj, textprot,
+      imgobj, imgprot,
       pathobj, pathprot,
       extendAndDelete,
       appendToContainer,
@@ -80,6 +84,7 @@
       childRemove,
       baselineOffsetCache,
       getBaselineOffset,
+      nodeBaseConstruct,
       canvasBaseConstruct,
       pathBaseConstruct,
       countListeners,
@@ -243,7 +248,8 @@
   nodeprot._maxY = 0;
   nodeprot._v = true;
   nodeprot._mod = MOD_DEFAULT;
-  nodeprot._construct = function() {
+  nodeprot._construct = nodeBaseConstruct = function() {
+    this._l = {};
   };
   nodeprot.canvas = function() {
     return this._cvs;
@@ -435,12 +441,18 @@
   parentobj = function() {
   };
   parentprot = parentobj.prototype = new nodeobj();
+  parentprot.addEventListener = parentprot.removeEventListener = undefined;
   parentprot._construct = function() {
     nodeprot._construct.apply(this);
     this._c = [];
   };
   parentprot.text = function(text, font, align, valign) {
     var r = new textobj(text, font, align, valign);
+    this.add(r);
+    return r;
+  };
+  parentprot.image = function(src) {
+    var r = new imgobj(src);
     this.add(r);
     return r;
   };
@@ -824,6 +836,7 @@
     this.valign(valign);
   };
   textprot = textobj.prototype = new leafobj();
+  textprot.addEventListener = textprot.removeEventListener = undefined;
   textprot._text = "";
   textprot._font = "10px sans-serif";
   textprot._align = TXT_ALIGN_LEFT;
@@ -897,6 +910,97 @@
     }
   };
 
+  // IMAGE
+
+  imgobj = canvasspace.Text = function(src) {
+    this._elt = document.createElement("img");
+    this._construct();
+    this.src(src);
+  };
+  imgprot = imgobj.prototype = new nodeobj();
+  imgprot._src = undefined;
+  imgprot._ox = 0;
+  imgprot._oy = 0;
+  imgprot.src = function(src) {
+    var canvas;
+
+    if (src === undefined) {
+      return this._src;
+    } else {
+      if (src !== this._src) {
+        this._src = src;
+        this._mod = MOD_SRC;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
+      }
+
+      return this;
+    }
+  };
+  imgprot.originX = function(ox) {
+    var canvas;
+
+    if (ox === undefined) {
+      return this._ox;
+    } else {
+      if (this._ox !== ox) {
+        this._ox = ox;
+        this._mod |= MOD_ORIGIN;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
+      }
+
+      return this;
+    }
+  };
+  imgprot.originY = function(oy) {
+    var canvas;
+
+    if (oy === undefined) {
+      return this._oy;
+    } else {
+      if (this._oy !== oy) {
+        this._oy = oy;
+        this._mod |= MOD_ORIGIN;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
+      }
+
+      return this;
+    }
+  };
+  imgprot.origin = function(ox, oy) {
+    var canvas;
+
+    if (ox === undefined) {
+      return [ this._ox, this._oy ];
+    } else {
+      if ((this._ox !== ox) || (this._oy !== oy)) {
+        this._ox = ox;
+        this._oy = oy;
+        this._mod |= MOD_ORIGIN;
+        if (!!(canvas = this._cvs) && !canvas._t) {
+          canvas._t = setTimeout(canvas._df, canvas._at);
+        }
+      }
+
+      return this;
+    }
+  };
+  imgprot.handleEvent = function(e) {
+    var canvas;
+
+    if (e.type === "load") {
+      this._load |= MOD_LOAD;
+      if (!!(canvas = this._cvs) && !canvas._t) {
+        canvas._t = setTimeout(canvas._df, canvas._at);
+      }
+    }
+  };
+
   // PATH
 
   pathobj = canvasspace.Path = function(data) {
@@ -910,7 +1014,6 @@
   pathprot._construct = pathBaseConstruct = function() {
     leafprot._construct.apply(this);
     this._data = [];
-    this._l = {};
   };
   pathprot.fill = function(fill, angle) {
     var type, mod = 0, cur = this._fill, canvas;
@@ -1148,6 +1251,17 @@
       return o;
     };
 
+    // HTML5 NODE
+
+    nodeprot.addEventListener = function(type, listener) {
+      nodeDeltaListener(this, type, listener, true);
+      return this;
+    };
+    nodeprot.removeEventListener = function(type, listener) {
+      nodeDeltaListener(this, type, listener, false);
+      return this;
+    };
+
     // HTML5 PARENT
 
     parentprot._insertBefore = function(child) {
@@ -1310,16 +1424,40 @@
       }
     };
 
+    // HTML5 IMAGE
+
+    imgprot._construct = function() {
+      nodeprot._construct.apply(this, arguments);
+      this._elt.addEventListener("load", this, false);
+    };
+    imgprot._draw = function(ctx, tx, ty, sx, sy, testx, testy) {
+      var elt = this._elt, mod = this._mod, w, h, ox, oy;
+
+      if (mod & MOD_SRC) {
+        elt.src = this._src;
+      }
+      if (elt.complete) {
+        ox = this._ox;
+        oy = this._oy;
+        w = elt.naturalWidth;
+        h = elt.naturalHeight;
+        if (testx === undefined || testy === undefined) {
+          ctx.drawImage(elt, -ox * sx + tx, -oy * sy + ty, w * sx, h * sy);
+        } else {
+          w *= sx;
+          h *= sy;
+          testx += ox * sx - tx;
+          testy += oy * sy - ty;
+          if ((sx > 0 ? testx >= 0 && testx < w : testx <= 0 && testx > w) &&
+              (sy > 0 ? testy >= 0 && testy < h : testy <= 0 && testy > h)) {
+            return this;
+          }
+        }
+      }
+    };
+
     // HTML5 PATH
 
-    pathprot.addEventListener = function(type, listener) {
-      nodeDeltaListener(this, type, listener, true);
-      return this;
-    };
-    pathprot.removeEventListener = function(type, listener) {
-      nodeDeltaListener(this, type, listener, false);
-      return this;
-    };
     pathprot._draw = function(ctx, origtx, origty, origsx, origsy, testx,
         testy) {
       var stroke = this._stroke,
@@ -1682,6 +1820,49 @@
       return -refOffset;
     };
 
+    // VML NODE
+
+    nodeprot._construct = function() {
+      nodeBaseConstruct.apply(this, arguments);
+      this._lf = {};
+    };
+    nodeprot.addEventListener = function(type, listener) {
+      var index = nodeArrayAddListener(this, type, listener), funcs, f,
+          me = this;
+
+      if (index >= 0) {
+        f = function() {
+          var canvas = me._cvs, e = window.event;
+          if (canvas) {
+            fillEvent(e, canvas._elt);
+          }
+          e.canvasTarget = me;
+          listener.handleEvent(e);
+          clearCustomEventProps(e);
+        };
+        if (!(funcs = this._lf[type])) {
+          funcs = this._lf[type] = [];
+        }
+        funcs[index] = f;
+        this._elt.attachEvent("on" + type, f);
+      }
+
+      return this;
+    };
+    nodeprot.removeEventListener = function(type, listener) {
+      var removedIndex = nodeArrayRemoveListener(this, type, listener),
+          funcs, f;
+
+      if (removedIndex >= 0) {
+        funcs = this._lf[type];
+        f = funcs[removedIndex];
+        funcs.splice(removedIndex, 1);
+        this._elt.detachEvent("on" + type, f);
+      }
+
+      return this;
+    };
+
     // VML PARENT
 
     parentprot._insertBefore = function(child, beforeIndex) {
@@ -1762,7 +1943,7 @@
       s.margin = s.padding = "0px";
       s.overflow = this._overflow ? "visible" : "hidden";
       s.position = "relative";
-      elt.onselectstart = function(){ return false; };
+      elt.onselectstart = function() { return false; };
     };
     canvasprot._setWidth = function(width) {
       this._style.width = width + "px";
@@ -1790,6 +1971,8 @@
     // VML TEXT
 
     textprot._construct = function() {
+      leafprot._construct.apply(this, arguments);
+
       var elt = this._elt = document.createElement("div"),
           s = elt.style;
 
@@ -1857,6 +2040,88 @@
       }
     };
 
+    // VML IMAGE
+
+    imgprot._construct = function() {
+      var element = this._elt, s = element.style,
+          h, me = this;
+
+      nodeprot._construct.apply(this, arguments);
+
+      s.position = "absolute";
+      s.margin = s.padding = "0px";
+
+      h = function() {
+        me.handleEvent(window.event);
+      };
+
+      element.attachEvent("onload", h);
+      element.ondragstart = function() { return false; };
+    };
+    imgprot._draw = function(htx, hty, hsx, hsy) {
+      var mod = this._mod, element = this._elt, style = element.style,
+          loaded, v,
+          w, h, l, t, maxX, maxY, flip;
+
+      if (mod & MOD_SRC) {
+        element.src = this._src;
+
+        // IE has the wonderful behavior that doesn't fire onload if an image is
+        // cached, so immediately check if the image has loaded
+
+        mod |= MOD_LOAD;
+      }
+
+      if (mod & (MOD_TRANSLATE | MOD_SCALE | MOD_LOAD)) {
+        loaded = (element.readyState === "complete");
+
+        // note that the width and height attributes can't be unset once set
+        // (setting them to empty string causes image to not render), which
+        // would give us no way to check the size of a new image in the same
+        // element. we must only modify CSS width/height
+
+        if (mod & MOD_LOAD) {
+          // reset width and height to get the native size of our new image
+
+          if (loaded) {
+            style.height = style.width = style.flip = "";
+            this._maxX = element.offsetWidth;
+            this._maxY = element.offsetHeight;
+          }
+
+          // hide images while loading, mainly because we won't set its
+          // transforms until it's loaded
+
+          v = (loaded ? "visible" : "hidden");
+          if (style.visibility !== v) {
+            style.visibility = v;
+          }
+        }
+
+        if (loaded) {
+          htx -= this._ox;
+          hty -= this._oy;
+
+          maxX = this._maxX;
+          maxY = this._maxY;
+
+          w = round((hsx < 0 ? -hsx : hsx) * maxX) + 'px';
+          h = round((hsy < 0 ? -hsy : hsy) * maxY) + 'px';
+          l = round((hsx < 0 ? maxX : 0) * hsx + htx) + 'px';
+          t = round((hsy < 0 ? maxY : 0) * hsy + hty) + 'px';
+
+          flip = hsx < 0 ? (hsy < 0 ? "xy" : "x") : (hsy < 0 ? "y" : "");
+
+          if (style.flip   !== flip) { style.flip   = flip; }
+
+          if (style.left   !== l) { style.left   = l; }
+          if (style.top    !== t) { style.top    = t; }
+          if (style.width  !== w) { style.width  = w; }
+          if (style.height !== h) { style.height = h; }
+        }
+      }
+    };
+
     // VML PATH
 
     pathprot._keep = false;
@@ -1873,44 +2138,6 @@
           '" style="position:absolute;margin:0px;padding:0px;"/>';
       var elt = this._elt = dummyElement.firstChild;
       dummyElement.removeChild(elt);
-
-      this._lf = {};
-    };
-    pathprot.addEventListener = function(type, listener) {
-      var index = nodeArrayAddListener(this, type, listener), funcs, f,
-          me = this;
-
-      if (index >= 0) {
-        f = function() {
-          var canvas = me._cvs, e = window.event;
-          if (canvas) {
-            fillEvent(e, canvas._elt);
-          }
-          e.canvasTarget = me;
-          listener.handleEvent(e);
-          clearCustomEventProps(e);
-        };
-        if (!(funcs = this._lf[type])) {
-          funcs = this._lf[type] = [];
-        }
-        funcs[index] = f;
-        this._elt.attachEvent("on" + type, f);
-      }
-
-      return this;
-    };
-    pathprot.removeEventListener = function(type, listener) {
-      var removedIndex = nodeArrayRemoveListener(this, type, listener),
-          funcs, f;
-
-      if (removedIndex >= 0) {
-        funcs = this._lf[type];
-        f = funcs[removedIndex];
-        funcs.splice(removedIndex, 1);
-        this._elt.detachEvent("on" + type, f);
-      }
-
-      return this;
     };
     pathprot._gc = function() {
       if (!this._keep && !(this._mod & MOD_PATH_DATA)) {
