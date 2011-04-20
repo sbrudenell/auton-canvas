@@ -73,6 +73,7 @@
       textobj, textprot,
       imgobj, imgprot,
       pathobj, pathprot,
+      falseFunction,
       extendAndDelete,
       appendToContainer,
       setCanvas,
@@ -104,6 +105,9 @@
 
   canvasspace.version = "1.0";
 
+  falseFunction = function() {
+    return false;
+  };
   nodeSetBounds = function(node, minX, minY, maxX, maxY, hint) {
     var mod = hint ? MOD_BOUND_IS_HINT : 0;
 
@@ -994,7 +998,7 @@
     var canvas;
 
     if (e.type === "load") {
-      this._load |= MOD_LOAD;
+      this._mod |= MOD_LOAD;
       if (!!(canvas = this._cvs) && !canvas._t) {
         canvas._t = setTimeout(canvas._df, canvas._at);
       }
@@ -1324,6 +1328,7 @@
         style.position = "absolute";
       }
 
+      element.onselectstart = falseFunction;
       element.addEventListener("mouseout", this, false);
       this._lc = {};
 
@@ -1943,7 +1948,7 @@
       s.margin = s.padding = "0px";
       s.overflow = this._overflow ? "visible" : "hidden";
       s.position = "relative";
-      elt.onselectstart = function() { return false; };
+      elt.onselectstart = falseFunction;
     };
     canvasprot._setWidth = function(width) {
       this._style.width = width + "px";
@@ -2056,7 +2061,7 @@
       };
 
       element.attachEvent("onload", h);
-      element.ondragstart = function() { return false; };
+      element.ondragstart = falseFunction;
     };
     imgprot._draw = function(htx, hty, hsx, hsy) {
       var mod = this._mod, element = this._elt, style = element.style,
