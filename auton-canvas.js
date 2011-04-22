@@ -346,7 +346,7 @@
   nodeprot.visible = function(visible) {
     var canvas;
 
-    if (visible === undefined) {
+    if (arguments.length === 0) {
       return this._v;
     } else {
       if (this._v !== visible) {
@@ -369,7 +369,7 @@
   nodeprot.translateX = function(tx) {
     var canvas;
 
-    if (tx === undefined) {
+    if (arguments.length === 0) {
       return this._tx;
     } else {
       if (this._tx !== tx) {
@@ -386,7 +386,7 @@
   nodeprot.translateY = function(ty) {
     var canvas;
 
-    if (ty === undefined) {
+    if (arguments.length === 0) {
       return this._ty;
     } else {
       if (this._ty !== ty) {
@@ -403,7 +403,7 @@
   nodeprot.scaleX = function(sx) {
     var canvas;
 
-    if (sx === undefined) {
+    if (arguments.length === 0) {
       return this._sx;
     } else {
       if (this._sx !== sx) {
@@ -420,7 +420,7 @@
   nodeprot.scaleY = function(sy) {
     var canvas;
 
-    if (sy === undefined) {
+    if (arguments.length === 0) {
       return this._sy;
     } else {
       if (this._sy !== sy) {
@@ -437,7 +437,7 @@
   nodeprot.translate = function(tx, ty) {
     var canvas;
 
-    if (tx === undefined) {
+    if (arguments.length === 0) {
       return [ this._tx, this._ty ];
     } else {
       if ((this._tx !== tx) || (this._ty !== ty)) {
@@ -455,7 +455,7 @@
   nodeprot.scale = function(sx, sy) {
     var canvas;
 
-    if (sx === undefined) {
+    if (arguments.length === 0) {
       return [ this._sx, this._sy ];
     } else {
       if ((this._sx !== sx) || (this._sy !== sy)) {
@@ -473,7 +473,7 @@
   nodeprot.transform = function(tx, ty, sx, sy) {
     var canvas, mod = 0;
 
-    if (tx === undefined) {
+    if (arguments.length === 0) {
       return {
         t: [ this._tx, this._ty ],
         s: [ this._sx, this._sy ]
@@ -748,7 +748,7 @@
     return this._elt;
   };
   canvasprot.width = function(width) {
-    if (width === undefined) {
+    if (arguments.length === 0) {
       return this._width;
     } else {
       width = ~~number(width);
@@ -760,7 +760,7 @@
     }
   };
   canvasprot.height = function(height) {
-    if (height === undefined) {
+    if (arguments.length === 0) {
       return this._height;
     } else {
       height = ~~number(height);
@@ -821,7 +821,7 @@
   };
   canvasprot.toFront = canvasprot.toBack = undefined;
   canvasprot.visible = function(visible) {
-    if (visible === undefined) {
+    if (arguments.length === 0) {
       return this._elt.style.visible !== "none";
     } else {
       this._elt.style.visible = (visible ? "" : "none");
@@ -871,7 +871,7 @@
   leafprot.stroke = function(color) {
     var canvas;
 
-    if (color === undefined) {
+    if (arguments.length === 0) {
       return this._stroke;
     } else {
       if (typeof color !== "string") {
@@ -892,7 +892,7 @@
   leafprot.strokeWidth = function(width) {
     var canvas;
 
-    if (width === undefined) {
+    if (arguments.length === 0) {
       return this._width;
     } else {
       if ((width > 0) && width !== this._width) {
@@ -925,7 +925,7 @@
   textprot.text = function(text) {
     var canvas;
 
-    if (text === undefined) {
+    if (arguments.length === 0) {
       return this._text;
     } else {
       if (text !== this._text) {
@@ -942,7 +942,7 @@
   textprot.font = function(font) {
     var canvas;
 
-    if (font === undefined) {
+    if (arguments.length === 0) {
       return this._font;
     } else {
       if (font !== this._font) {
@@ -959,7 +959,7 @@
   textprot.align = function(align) {
     var canvas;
 
-    if (align === undefined) {
+    if (arguments.length === 0) {
       return this._align;
     } else {
       if (align !== this._align) {
@@ -976,7 +976,7 @@
   textprot.valign = function(valign) {
     var canvas;
 
-    if (valign === undefined) {
+    if (arguments.length === 0) {
       return this._valign;
     } else {
       if (valign !== this._valign) {
@@ -1005,7 +1005,7 @@
   imgprot.src = function(src) {
     var canvas;
 
-    if (src === undefined) {
+    if (arguments.length === 0) {
       return this._src;
     } else {
       if (src !== this._src) {
@@ -1022,7 +1022,7 @@
   imgprot.originX = function(ox) {
     var canvas;
 
-    if (ox === undefined) {
+    if (arguments.length === 0) {
       return this._ox;
     } else {
       if (this._ox !== ox) {
@@ -1039,7 +1039,7 @@
   imgprot.originY = function(oy) {
     var canvas;
 
-    if (oy === undefined) {
+    if (arguments.length === 0) {
       return this._oy;
     } else {
       if (this._oy !== oy) {
@@ -1056,7 +1056,7 @@
   imgprot.origin = function(ox, oy) {
     var canvas;
 
-    if (ox === undefined) {
+    if (arguments.length === 0) {
       return [ this._ox, this._oy ];
     } else {
       if ((this._ox !== ox) || (this._oy !== oy)) {
@@ -1099,7 +1099,7 @@
   pathprot.fill = function(fill, angle) {
     var type, mod = 0, cur = this._fill, canvas;
 
-    if (fill === undefined) {
+    if (arguments.length === 0) {
       return cur;
     } else {
       type = typeof fill;
@@ -1145,7 +1145,7 @@
   pathprot.data = function(data) {
     var canvas;
 
-    if (data === undefined) {
+    if (arguments.length === 0) {
       return this._data;
     } else {
       if (data instanceof array) {
@@ -1161,7 +1161,7 @@
     }
   };
   pathprot.keep = function(keep) {
-    if (keep === undefined) {
+    if (arguments.length === 0) {
       return this._keep;
     } else {
       this._keep = keep = !!keep;
@@ -1180,7 +1180,7 @@
     return this;
   };
   pathprot.bounds = function(minX, minY, maxX, maxY) {
-    if (minX === undefined) {
+    if (arguments.length === 0) {
       return [
         this._minX,
         this._minY,
