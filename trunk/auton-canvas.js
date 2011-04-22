@@ -16,7 +16,7 @@
 (function(window, undefined) {
   var document = window.document,
       navigator = window.navigator,
-      autonspace = (window.auton = (window.auton || {})),
+      autonspace = (window.auton = (window.auton || {})), autonUnload,
       canvasspace = (autonspace.canvas = (autonspace.canvas || {})),
       CMD_MOVETO = canvasspace.CMD_MOVETO = "M",
       CMD_LINETO = canvasspace.CMD_LINETO = "L",
@@ -73,16 +73,19 @@
       textobj, textprot,
       imgobj, imgprot,
       pathobj, pathprot,
-      falseFunction,
+      falseHandler,
       extendAndDelete,
       appendToContainer,
+      eachNode,
+      eachElementNode,
+      firstElementNode,
       setCanvas,
       nodeSetBounds,
-      setVisible,
+      elementNodeSetVisible,
       getFirstElementInSubtree,
       getNextElement,
-      childInsertBeforeElement,
-      childRemove,
+      elementNodeInsertBeforeElement,
+      elementNodeRemove,
       baselineOffsetCache,
       getBaselineOffset,
       nodeBaseConstruct,
@@ -92,6 +95,7 @@
       nodeArrayAddListener,
       nodeArrayRemoveListener,
       nodeDeltaListener,
+      elementNodeAttachDetachAllListeners,
       MOUSE_EVENT_MAP,
       canvasDeltaListeners,
       dispatchEvent,
@@ -105,8 +109,22 @@
 
   canvasspace.version = "1.0";
 
-  falseFunction = function() {
-    return false;
+  autonUnload = function() {
+    window.auton = null;
+    window.detachEvent("onunload", autonUnload);
+  };
+
+  if (window.attachEvent) {
+    window.attachEvent("onunload", autonUnload);
+  }
+
+  falseHandler = {
+    handleEvent: function(e) {
+      if (e.preventDefault) {
+        e.preventDefault();
+      }
+      return false;
+    }
   };
   nodeSetBounds = function(node, minX, minY, maxX, maxY, hint) {
     var mod = hint ? MOD_BOUND_IS_HINT : 0;
@@ -147,14 +165,57 @@
       element.appendChild(node._elt);
     }
   };
-  setCanvas = function(node, canvas) {
-    var children = node._c, i, n;
-    node._cvs = canvas;
+  eachNode = function(node, func, arg) {
+    var children = node._c, i, n, r, childr;
+
+    r = func(node, arg);
+
     if (children) {
       for (i = 0, n = children.length; i < n; i++) {
-        setCanvas(children[i], canvas);
+        childr = eachNode(children[i], func, arg);
+        if (childr) {
+          r = childr;
+        }
       }
     }
+
+    return r;
+  };
+  eachElementNode = function(node, func, arg) {
+    var element = node._elt, children = node._c, i, n, r, childr;
+
+    if (element) {
+      func(node, arg);
+    }
+    if (children) {
+      for (i = 0, n = children.length; i < n; i++) {
+        childr = eachElementNode(children[i], func, arg);
+        if (childr) {
+          r = childr;
+        }
+      }
+    }
+
+    return r;
+  };
+  firstElementNode = function(node, func, arg) {
+    var element = node._elt, children = node._c, i, n, r, childr;
+
+    if (element) {
+      func(node, arg);
+    } else if (children) {
+      for (i = 0, n = children.length; i < n; i++) {
+        childr = firstElementNode(children[i], func, arg);
+        if (childr) {
+          r = childr;
+        }
+      }
+    }
+
+    return r;
+  };
+  setCanvas = function(node, canvas) {
+    node._cvs = canvas;
   };
   nodeArrayAddListener = function(node, type, listener) {
     var i, n, listeners = node._l[type];
@@ -445,7 +506,6 @@
   parentobj = function() {
   };
   parentprot = parentobj.prototype = new nodeobj();
-  parentprot.addEventListener = parentprot.removeEventListener = undefined;
   parentprot._construct = function() {
     nodeprot._construct.apply(this);
     this._c = [];
@@ -527,7 +587,7 @@
 
         canvas = this._cvs;
         if (canvas) {
-          setCanvas(target, canvas);
+          eachNode(target, setCanvas, canvas);
         }
       }
     } else {
@@ -543,27 +603,31 @@
   parentprot.remove = function(target) {
     var i = -1, children, n;
 
-    if (target._p === this) {
-      children = this._c;
-      for (i = 0, n = children.length; i < n; i++) {
-        if (children[i] === target) {
-          children.splice(i, 1);
-          break;
+    if (arguments.length === 0) {
+      nodeprot.remove.call(this);
+    } else {
+      if (target._p === this) {
+        children = this._c;
+        for (i = 0, n = children.length; i < n; i++) {
+          if (children[i] === target) {
+            children.splice(i, 1);
+            break;
+          }
+        }
+
+        if (i < n) {
+          target._p = undefined;
+          if (this._cvs) {
+            eachNode(target, setCanvas, undefined);
+          }
+        } else {
+          i = -1;
         }
       }
 
-      if (i < n) {
-        target._p = undefined;
-        if (this._cvs) {
-          setCanvas(target, undefined);
-        }
-      } else {
-        i = -1;
+      if (i >= 0) {
+        this._remove(target, i);
       }
-    }
-
-    if (i >= 0) {
-      this._remove(target, i);
     }
 
     return this;
@@ -576,7 +640,7 @@
       child = children[i];
       child._p = undefined;
       if (canvas) {
-        setCanvas(child, undefined);
+        eachNode(child, setCanvas, undefined);
       }
       this._remove(child, i);
     }
@@ -653,24 +717,21 @@
 
   // CANVAS
 
-  canvasobj = canvasspace.Canvas = function(width, height, element) {
+  canvasobj = canvasspace.Canvas = function(width, height, element, attr) {
     var me = this;
-
-    this._construct();
-
-    if (this.width) {
-      this.width(width);
-    }
-    if (this.height) {
-      this.height(height);
-    }
-
-    appendToContainer(this, element);
 
     this._cvs = this;
     this._df = function() {
       me.draw();
     };
+    this._a = attr || {};
+
+    this._construct();
+
+    this.width(width);
+    this.height(height);
+
+    appendToContainer(this, element);
   };
   canvasprot = canvasobj.prototype = new parentobj();
   canvasprot._width = 300;
@@ -767,6 +828,23 @@
       this._elt.style.visible = (visible ? "" : "none");
       return this;
     }
+  };
+  canvasprot.remove = function(target) {
+    var element, parentElement;
+
+    if (arguments.length === 0) {
+      element = this._elt;
+      parentElement = element.parentNode;
+      if (parentElement) {
+        parentElement.removeChild(element);
+      }
+    } else {
+      parentprot.remove.call(this, target);
+    }
+  };
+  canvasprot.onAttach = function() {
+  };
+  canvasprot.onDetach = function() {
   };
 
   // PLOTTER
@@ -1197,8 +1275,7 @@
         countsByType = {};
       }
 
-      var listenersByType = node._l, listeners, type,
-          children = node._c, i, n;
+      var listenersByType = node._l, listeners, type, n;
 
       if (listenersByType) {
         for (type in listenersByType) {
@@ -1209,12 +1286,6 @@
               countsByType[type] = (countsByType[type] || 0) + n;
             }
           }
-        }
-      }
-
-      if (children) {
-        for (i = 0, n = children.length; i < n; i++) {
-          countListeners(children[i], countsByType);
         }
       }
 
@@ -1271,7 +1342,8 @@
     parentprot._insertBefore = function(child) {
       var canvas = this._cvs;
       if (canvas) {
-        canvasDeltaListeners(canvas, countListeners(child), true);
+        canvasDeltaListeners(canvas, eachNode(child, countListeners, {}),
+          true);
         if (!canvas._t) {
           canvas._t = setTimeout(canvas._df, canvas._at);
         }
@@ -1280,7 +1352,8 @@
     parentprot._remove = function(child) {
       var canvas = this._cvs;
       if (canvas) {
-        canvasDeltaListeners(canvas, countListeners(child), false);
+        canvasDeltaListeners(canvas, eachNode(child, countListeners, {}),
+          false);
         if (!canvas._t) {
           canvas._t = setTimeout(canvas._df, canvas._at);
         }
@@ -1328,7 +1401,10 @@
         style.position = "absolute";
       }
 
-      element.onselectstart = falseFunction;
+      if (!this._a.noEvents) {
+        element.addEventListener("selectstart", falseHandler, false);
+      }
+
       element.addEventListener("mouseout", this, false);
       this._lc = {};
 
@@ -1353,6 +1429,14 @@
         this._ty + this._bty,
         this._sx, this._sy,
         testx, testy);
+    };
+    canvasprot.addEventListener = function(type, listener) {
+      this._elt.addEventListener(type, listener, false);
+      return this;
+    };
+    canvasprot.removeEventListener = function(type, listener) {
+      this._elt.removeEventListener(type, listener, false);
+      return this;
     };
     canvasprot.handleEvent = function(e) {
       var type, node, lastmousenode;
@@ -1685,21 +1769,13 @@
     // set some node as visible. if the node actually has an element, this is
     // a simple CSS change. otherwise (if this node is a group with no
     // group element), we must recurse over the children.
-    setVisible = function(node, visible) {
-      var element = node._elt, s,
-          i, children, n;
+    elementNodeSetVisible = function(node, visible) {
+      var element = node._elt, s = element.style;
 
-      if (element) {
-        s = element.style;
+      s = element.style;
 
-        if (s.display !== "none" ^ visible) {
-          s.display = (visible ? "" : "none");
-        }
-      } else {
-        children = node._c;
-        for (i = 0, n = children.length; i < n; i++) {
-          setVisible(children[i], visible);
-        }
+      if (s.display !== "none" ^ visible) {
+        s.display = (visible ? "" : "none");
       }
     };
     getFirstElementInSubtree = function(node) {
@@ -1767,33 +1843,33 @@
 
       return undefined;
     };
-    // insert a child node's element (or if it has none, those of its
-    // children) at a particular position in the DOM.
-    childInsertBeforeElement = function(child, parentElement, beforeElement) {
-      var element = child._elt, i, children, n;
+    elementNodeInsertBeforeElement = function(node, args) {
+      args.p.insertBefore(node._elt, args.b || null);
+    };
+    elementNodeRemove = function(node) {
+      var element = node._elt, parentElement = element.parentNode;
 
-      if (element) {
-        parentElement.insertBefore(element, beforeElement || null);
-      } else {
-        children = child._c;
-        for (i = 0, n = children.length; i < n; i++) {
-          childInsertBeforeElement(children[i], parentElement, beforeElement);
-        }
+      if (parentElement) {
+        parentElement.removeChild(element);
       }
     };
-    childRemove = function(child) {
-      var element = child._elt, parentElement, i, children, n;
+    elementNodeAttachDetachAllListeners = function(node, attach) {
+      var element = node._elt, funcsByType = node._lf,
+          type, onType,
+          funcs, i, n, func;
 
-      if (element) {
-        parentElement = element.parentNode;
-
-        if (parentElement) {
-          parentElement.removeChild(element);
-        }
-      } else {
-        children = child._c;
-        for (i = 0, n = children.length; i < n; i++) {
-          childRemove(children[i]);
+      for (type in funcsByType) {
+        if (funcsByType.hasOwnProperty(type)) {
+          onType = "on" + type;
+          funcs = funcsByType[type];
+          for (i = 0, n = funcs.length; i < n; i++) {
+            func = funcs[i];
+            if (attach) {
+              element.attachEvent(onType, func);
+            } else {
+              element.detachEvent(onType, func);
+            }
+          }
         }
       }
     };
@@ -1831,25 +1907,29 @@
       nodeBaseConstruct.apply(this, arguments);
       this._lf = {};
     };
+    nodeprot._alpha2 = 1;
     nodeprot.addEventListener = function(type, listener) {
       var index = nodeArrayAddListener(this, type, listener), funcs, f,
           me = this;
 
       if (index >= 0) {
         f = function() {
-          var canvas = me._cvs, e = window.event;
+          var canvas = me._cvs, e = window.event, r;
           if (canvas) {
             fillEvent(e, canvas._elt);
           }
           e.canvasTarget = me;
-          listener.handleEvent(e);
+          r = listener.handleEvent(e);
           clearCustomEventProps(e);
+          return r;
         };
         if (!(funcs = this._lf[type])) {
           funcs = this._lf[type] = [];
         }
         funcs[index] = f;
-        this._elt.attachEvent("on" + type, f);
+        if (this._cvs) {
+          this._elt.attachEvent("on" + type, f);
+        }
       }
 
       return this;
@@ -1862,7 +1942,9 @@
         funcs = this._lf[type];
         f = funcs[removedIndex];
         funcs.splice(removedIndex, 1);
-        this._elt.detachEvent("on" + type, f);
+        if (this._cvs) {
+          this._elt.detachEvent("on" + type, f);
+        }
       }
 
       return this;
@@ -1874,12 +1956,16 @@
       var canvas = this._cvs;
 
       if (canvas) {
-        childInsertBeforeElement(child, canvas._elt,
-          getNextElement(this, beforeIndex));
+        eachElementNode(child, elementNodeAttachDetachAllListeners, true);
+        firstElementNode(child, elementNodeInsertBeforeElement, { p: canvas._elt,
+          b: getNextElement(this, beforeIndex) });
       }
     };
     parentprot._remove = function(child) {
-      childRemove(child);
+      firstElementNode(child, elementNodeRemove);
+      if (this._cvs) {
+        eachElementNode(child, elementNodeAttachDetachAllListeners, false);
+      }
     };
     parentprot._draw = function(htx, hty, hsx, hsy) {
       var pmod = this._mod, ptmod = pmod & (MOD_SCALE | MOD_TRANSLATE),
@@ -1893,7 +1979,7 @@
         cmod = child._mod;
 
         if (cmod & MOD_VISIBLE) {
-          setVisible(child, child._v);
+          firstElementNode(child, elementNodeSetVisible, child._v);
           cmod &= ~MOD_VISIBLE;
           child._mod = cmod;
         }
@@ -1931,12 +2017,9 @@
       }
     };
 
-    // VML NODE
-
-    nodeprot._alpha2 = 1;
-
     // VML CANVAS
 
+    canvasprot._attached = true;
     canvasprot._construct = function() {
       var elt, s;
 
@@ -1948,7 +2031,10 @@
       s.margin = s.padding = "0px";
       s.overflow = this._overflow ? "visible" : "hidden";
       s.position = "relative";
-      elt.onselectstart = falseFunction;
+
+      if (!this._a.noEvents) {
+        this.addEventListener("selectstart", falseHandler);
+      }
     };
     canvasprot._setWidth = function(width) {
       this._style.width = width + "px";
@@ -1963,10 +2049,27 @@
                  this._ty + this._bty - 0.5,
                  this._sx, this._sy);
     };
+    canvasprot.onAttach = function() {
+      if (!this._attached) {
+        eachElementNode(this, elementNodeAttachDetachAllListeners, true);
+      }
+      this._attached = true;
+    };
+    canvasprot.onDetach = function() {
+      if (this._attached) {
+        eachElementNode(this, elementNodeAttachDetachAllListeners, false);
+      }
+      this._attached = false;
+    };
 
     // VML PLOTTER
 
     plotterprot = plotterobj.prototype = new canvasobj();
+    // "new canvasobj" creates a new canvas instance, which attaches some event
+    // handlers by default, which can create leaks. explicitly specify we don't
+    // want special event handlers
+    plotterprot.onDetach();
+    plotterprot._attached = true;
     plotterprot._overflow = true;
     plotterprot.width = plotterprot.height =
       plotterprot.path = plotterprot.group = undefined;
@@ -2048,20 +2151,15 @@
     // VML IMAGE
 
     imgprot._construct = function() {
-      var element = this._elt, s = element.style,
-          h, me = this;
+      var element = this._elt, s = element.style;
 
       nodeprot._construct.apply(this, arguments);
 
       s.position = "absolute";
       s.margin = s.padding = "0px";
 
-      h = function() {
-        me.handleEvent(window.event);
-      };
-
-      element.attachEvent("onload", h);
-      element.ondragstart = falseFunction;
+      this.addEventListener("load", this);
+      this.addEventListener("dragstart", falseHandler);
     };
     imgprot._draw = function(htx, hty, hsx, hsy) {
       var mod = this._mod, element = this._elt, style = element.style,
