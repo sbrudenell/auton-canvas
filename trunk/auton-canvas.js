@@ -717,14 +717,13 @@
 
   // CANVAS
 
-  canvasobj = canvasspace.Canvas = function(width, height, element, attr) {
+  canvasobj = canvasspace.Canvas = function(width, height, element) {
     var me = this;
 
     this._cvs = this;
     this._df = function() {
       me.draw();
     };
-    this._a = attr || {};
 
     this._construct();
 
@@ -1401,10 +1400,7 @@
         style.position = "absolute";
       }
 
-      if (!this._a.noEvents) {
-        element.addEventListener("selectstart", falseHandler, false);
-      }
-
+      element.addEventListener("selectstart", falseHandler, false);
       element.addEventListener("mouseout", this, false);
       this._lc = {};
 
@@ -2032,9 +2028,7 @@
       s.overflow = this._overflow ? "visible" : "hidden";
       s.position = "relative";
 
-      if (!this._a.noEvents) {
-        this.addEventListener("selectstart", falseHandler);
-      }
+      this.addEventListener("selectstart", falseHandler);
     };
     canvasprot._setWidth = function(width) {
       this._style.width = width + "px";
