@@ -2015,9 +2015,8 @@
 
     // VML CANVAS
 
-    canvasprot._attached = true;
     canvasprot._construct = function() {
-      var elt, s;
+      var elt, s, me, unload;
 
       canvasBaseConstruct.apply(this, arguments);
 
@@ -2029,7 +2028,14 @@
       s.position = "relative";
 
       this.addEventListener("selectstart", falseHandler);
+
+      me = this;
+      unload = this._unload = function() {
+        me.onDetach();
+      };
+      window.attachEvent("onunload", unload);
     };
+    canvasprot._attached = true;
     canvasprot._setWidth = function(width) {
       this._style.width = width + "px";
     };
@@ -2046,12 +2052,14 @@
     canvasprot.onAttach = function() {
       if (!this._attached) {
         eachElementNode(this, elementNodeAttachDetachAllListeners, true);
+        window.attachEvent("onunload", this._unload);
       }
       this._attached = true;
     };
     canvasprot.onDetach = function() {
       if (this._attached) {
         eachElementNode(this, elementNodeAttachDetachAllListeners, false);
+        window.detachEvent("onunload", this._unload);
       }
       this._attached = false;
     };
