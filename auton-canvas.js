@@ -1143,13 +1143,14 @@
     }
   };
   pathprot.data = function(data) {
-    var canvas;
+    var canvas, cur = this._data;
 
     if (arguments.length === 0) {
-      return this._data;
+      return cur;
     } else {
-      if (data instanceof array) {
-        this._data = data;
+      if (this._gced || (cur && cur.length) || (data && data.length)) {
+        this._data = (data && (data instanceof array)) ? data : [];
+        this._gced = false;
         this._mod = (this._mod & ~MOD_BOUND_IS_HINT) |
           MOD_PATH_DATA | MOD_NEEDS_BOUND_RECALC;
         if (!!(canvas = this._cvs) && !canvas._t) {
@@ -1176,8 +1177,7 @@
   pathprot._gc = function() {
   };
   pathprot.clear = function() {
-    this.data([]);
-    return this;
+    return this.data(undefined);
   };
   pathprot.bounds = function(minX, minY, maxX, maxY) {
     if (arguments.length === 0) {
@@ -2245,13 +2245,18 @@
       dummyElement.removeChild(elt);
     };
     pathprot._gc = function() {
+      var cur;
+
       if (!this._keep && !(this._mod & MOD_PATH_DATA)) {
+        cur = this._data;
+        this._gced = (cur && cur.length);
         this._data = undefined;
       }
     };
     pathprot._draw = function(htx, hty, hsx, hsy) {
       var mod = this._mod,
           minX, minY, maxX, maxY,
+          visible,
           sx, sy, tx, ty,
           element, style,
           i, n,
@@ -2508,12 +2513,13 @@
 
       if (mod & (MOD_MINS | MOD_MAXS | MOD_TRANSLATE | MOD_SCALE)) {
         style = element.style;
+        visible = ((minX <= maxX) && (minY <= maxY));
 
-        if ((minX > maxX) || (minY > maxY)) {
-          if (style.display !== "none") {
-            style.display = "none";
-          }
-        } else {
+        if (style.display !== "none" ^ visible) {
+          style.display = (visible ? "" : "none");
+        }
+
+        if (visible) {
           w = (hsx < 0 ? -hsx : hsx) * (maxX - minX);
           h = (hsy < 0 ? -hsy : hsy) * (maxY - minY);
           l = (hsx < 0 ? maxX : minX) * hsx + htx;
@@ -2643,6 +2649,7 @@
         element.path = path;
 
         if (!this._keep) {
+          this._gced = (data && n);
           this._data = undefined;
         }
       }
