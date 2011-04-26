@@ -1232,6 +1232,8 @@
     }
   };
 
+  implspace.supported = true;
+
   // HTML5 IMPLEMENTATION
 
   dummyElement = document.createElement("canvas");
@@ -2669,6 +2671,7 @@
       }
     };
   } else {
+    implspace.supported = false;
     throw "AutonCanvas doesn't support your browser!";
   }
 
