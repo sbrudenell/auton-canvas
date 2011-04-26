@@ -727,10 +727,15 @@
 
     this._construct();
 
-    this.width(width);
-    this.height(height);
-
-    appendToContainer(this, element);
+    if (width !== undefined) {
+      this.width(width);
+    }
+    if (height !== undefined) {
+      this.height(height);
+    }
+    if (element !== undefined) {
+      appendToContainer(this, element);
+    }
   };
   canvasprot = canvasobj.prototype = new parentobj();
   canvasprot._width = 300;
@@ -850,7 +855,9 @@
 
   plotterobj = canvasspace.Plotter = function(element) {
     this._construct();
-    appendToContainer(this, element);
+    if (element !== undefined) {
+      appendToContainer(this, element);
+    }
   };
   plotregionobj = canvasspace.PlotRegion = function() {
     this._construct();
@@ -911,10 +918,18 @@
 
   textobj = canvasspace.Text = function(text, font, align, valign) {
     this._construct();
-    this.text(text);
-    this.font(font);
-    this.align(align);
-    this.valign(valign);
+    if (text !== undefined) {
+      this.text(text);
+    }
+    if (font !== undefined) {
+      this.font(font);
+    }
+    if (align !== undefined) {
+      this.align(align);
+    }
+    if (valign !== undefined) {
+      this.valign(valign);
+    }
   };
   textprot = textobj.prototype = new leafobj();
   textprot.addEventListener = textprot.removeEventListener = undefined;
@@ -996,7 +1011,9 @@
   imgobj = canvasspace.Text = function(src) {
     this._elt = document.createElement("img");
     this._construct();
-    this.src(src);
+    if (src !== undefined) {
+      this.src(src);
+    }
   };
   imgprot = imgobj.prototype = new nodeobj();
   imgprot._src = undefined;
@@ -1086,7 +1103,7 @@
 
   pathobj = canvasspace.Path = function(data) {
     this._construct();
-    if (data) {
+    if (data !== undefined) {
       this.data(data);
     }
   };
