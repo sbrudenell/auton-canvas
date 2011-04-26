@@ -73,7 +73,7 @@
       textobj, textprot,
       imgobj, imgprot,
       pathobj, pathprot,
-      falseHandler,
+      falseListener,
       extendAndDelete,
       appendToContainer,
       eachNode,
@@ -109,22 +109,21 @@
 
   canvasspace.version = "1.0";
 
+  // IEJSLeaksDetector says the window object gets leaked because of the auton
+  // object.  this is probably a good defense anyway.
   autonUnload = function() {
     window.auton = null;
     window.detachEvent("onunload", autonUnload);
   };
-
   if (window.attachEvent) {
     window.attachEvent("onunload", autonUnload);
   }
 
-  falseHandler = {
-    handleEvent: function(e) {
-      if (e.preventDefault) {
-        e.preventDefault();
-      }
-      return false;
+  falseListener = function(e) {
+    if (e.preventDefault) {
+      e.preventDefault();
     }
+    return false;
   };
   nodeSetBounds = function(node, minX, minY, maxX, maxY, hint) {
     var mod = hint ? MOD_BOUND_IS_HINT : 0;
@@ -1305,12 +1304,17 @@
       }
     };
     dispatchEvent = function(node, e) {
-      var i, n, listeners = node._l[e.type];
+      var i, n, listeners = node._l[e.type], listener;
 
       if (listeners) {
         e.canvasTarget = node;
         for (i = 0, n = listeners.length; i < n; i++) {
-          listeners[i].handleEvent(e);
+          listener = listeners[i];
+          if (typeof listener === "function") {
+            listener(e);
+          } else {
+            listener.handleEvent(e);
+          }
         }
         clearCustomEventProps(e);
       }
@@ -1400,7 +1404,7 @@
         style.position = "absolute";
       }
 
-      element.addEventListener("selectstart", falseHandler, false);
+      element.addEventListener("selectstart", falseListener, false);
       element.addEventListener("mouseout", this, false);
       this._lc = {};
 
@@ -1915,7 +1919,11 @@
             fillEvent(e, canvas._elt);
           }
           e.canvasTarget = me;
-          r = listener.handleEvent(e);
+          if (typeof listener === "function") {
+            r = listener(e);
+          } else {
+            r = listener.handleEvent(e);
+          }
           clearCustomEventProps(e);
           return r;
         };
@@ -2027,7 +2035,7 @@
       s.overflow = this._overflow ? "visible" : "hidden";
       s.position = "relative";
 
-      this.addEventListener("selectstart", falseHandler);
+      this.addEventListener("selectstart", falseListener);
 
       me = this;
       unload = this._unload = function() {
@@ -2161,7 +2169,7 @@
       s.margin = s.padding = "0px";
 
       this.addEventListener("load", this);
-      this.addEventListener("dragstart", falseHandler);
+      this.addEventListener("dragstart", falseListener);
     };
     imgprot._draw = function(htx, hty, hsx, hsy) {
       var mod = this._mod, element = this._elt, style = element.style,
