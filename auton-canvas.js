@@ -18,6 +18,7 @@
       navigator = window.navigator,
       autonspace = (window.auton = (window.auton || {})), autonUnload,
       canvasspace = (autonspace.canvas = (autonspace.canvas || {})),
+      implspace = (canvasspace.impl = (canvasspace.impl || {})),
       CMD_MOVETO = canvasspace.CMD_MOVETO = "M",
       CMD_LINETO = canvasspace.CMD_LINETO = "L",
       CMD_DELIMIT = canvasspace.CMD_DELIMIT = "Z",
@@ -1238,6 +1239,8 @@
   if (dummyElement && dummyElement.getContext &&
       dummyElement.getContext("2d")) {
 
+    implspace.name = "HTML5";
+
     MOUSE_EVENT_MAP = {
       mouseover: "mousemove",
       mouseout: "mousemove"
@@ -1725,6 +1728,9 @@
   // VML IMPLEMENTATION
 
   else if (/MSIE/.test(navigator.userAgent)) {
+
+    implspace.name = "VML";
+
     // ensure the page knows about the VML namespaces.
     if (!document.namespaces.v) {
       document.namespaces.add("v", "urn:schemas-microsoft-com:vml");
