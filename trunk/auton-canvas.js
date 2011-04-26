@@ -1883,18 +1883,18 @@
     };
     baselineOffsetCache = {};
     getBaselineOffset = function(font) {
-      var test = document.createElement('span'),
-          ref = document.createElement('img'),
+      var test = document.createElement("span"),
+          ref = document.createElement("img"),
           refOffset,
-          reset = 'margin:0;padding:0;border:0;vertical-align:baseline;text-decoration:none;';
+          reset = "margin:0;padding:0;border:0;vertical-align:baseline;text-decoration:none;";
 
-      dummyElement.style.cssText = reset + 'position:absolute;top:0;left:0;visibility:hidden;';
-      test.style.cssText = reset + 'font:' + font + ';line-height:normal;';
+      dummyElement.style.cssText = reset + "position:absolute;top:0;left:0;visibility:hidden;";
+      test.style.cssText = reset + "font:" + font + ";line-height:normal;";
       ref.style.cssText = reset;
       ref.height = 1;
       ref.width = 1;
 
-      test.appendChild(document.createTextNode('x'));
+      test.appendChild(document.createTextNode("x"));
 
       document.body.appendChild(dummyElement);
       dummyElement.appendChild(test);
@@ -2143,7 +2143,7 @@
           minY = -elt.offsetHeight / 2;
         }
 
-        if (style.top !== (t = ~~(minY + ty) + 'px')) {
+        if (style.top !== (t = ~~(minY + ty) + "px")) {
           style.top = t;
         }
       }
@@ -2160,7 +2160,7 @@
           minX = 0;
         }
 
-        if (style.left !== (l = ~~(minX + tx) + 'px')) {
+        if (style.left !== (l = ~~(minX + tx) + "px")) {
           style.left = l;
         }
       }
@@ -2226,10 +2226,10 @@
           maxX = this._maxX;
           maxY = this._maxY;
 
-          w = round((hsx < 0 ? -hsx : hsx) * maxX) + 'px';
-          h = round((hsy < 0 ? -hsy : hsy) * maxY) + 'px';
-          l = round((hsx < 0 ? maxX : 0) * hsx + htx) + 'px';
-          t = round((hsy < 0 ? maxY : 0) * hsy + hty) + 'px';
+          w = round((hsx < 0 ? -hsx : hsx) * maxX) + "px";
+          h = round((hsy < 0 ? -hsy : hsy) * maxY) + "px";
+          l = round((hsx < 0 ? maxX : 0) * hsx + htx) + "px";
+          t = round((hsy < 0 ? maxY : 0) * hsy + hty) + "px";
 
           flip = hsx < 0 ? (hsy < 0 ? "xy" : "x") : (hsy < 0 ? "y" : "");
 
