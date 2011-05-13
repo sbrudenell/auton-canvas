@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+<title>javascript test</title>
+<script type="text/javascript" language="javascript" src="auton-canvas.min.js"></script>
+<script type="text/javascript" language="javascript">
+
+var W = 900, H = 450, N = 1000;
+var canvas;
+var path;
+
+function randomize() {
+  var data = [], l = 0;
+  var i;
+
+  for (i = 0; i < N; i++) {
+    data[l++] = (i === 0 ? 'M' : 'L');
+    data[l++] = W / N * i;
+    data[l++] = Math.random() * H;
+  }
+
+  path.data(data);
+}
+
+var startX, startY;
+var startScaleX, startScaleY;
+var dragging = false;
+
+function dampen(start, delta) {
+  return start * Math.exp(delta / 100);
+}
+
+window.onload = function() {
+  canvas = new auton.canvas.Canvas(W, H, "canvas");
+  path = canvas.path().stroke('#0a0');
+  randomize();
+
+  document.onmousedown = function(e) {
+    dragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    startScaleX = path.scaleX();
+    startScaleY = path.scaleY();
+  };
+  document.onmouseup = function(e) {
+    dragging = false;
+  };
+  document.onmousemove = function(e) {
+    if (dragging) {
+      path.scale(dampen(startScaleX, e.clientX - startX),
+        dampen(startScaleY, e.clientY - startY));
+    }
+  };
+  window.onload = undefined;
+}
+
+window.unload = function() {
+  document.onmousedown = undefined;
+  document.onmouseup = undefined;
+  document.onmousemove = undefined;
+  window.unload = undefined;
+}
+
+</script>
+</head>
+<body>
+<h1>chart line test</h1>
+<p>this this test draws a squiggly chart line using <a href="http://code.google.com/p/auton-canvas/">AutonCanvas</a>. drag the mouse around the page to resize the chart line. check its speed in different browsers.</p>
+<p>resizing and repositioning things in <a href="http://code.google.com/p/auton-canvas/">AutonCanvas</a> is typically fast, even in IE.</p>
+<p>note though: IE lags when the mouse hovers over a complex object like this chart line.</p>
+<div>
+<button onclick="randomize()">randomize chart line</button>
+</div>
+<div id="canvas"></div>
+</body>
+</html>
