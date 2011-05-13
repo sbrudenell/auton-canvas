@@ -757,9 +757,12 @@
       return this._width;
     } else {
       width = ~~number(width);
-      if (width > 0) {
+      if (width > 0 && this._width !== width) {
         this._width = width;
         this._setWidth(width);
+        if (!this._t) {
+          this._t = setTimeout(this._df, this._at);
+        }
       }
       return this;
     }
@@ -769,9 +772,12 @@
       return this._height;
     } else {
       height = ~~number(height);
-      if (height > 0) {
+      if (height > 0 && this._height !== height) {
         this._height = height;
         this._setHeight(height);
+        if (!this._t) {
+          this._t = setTimeout(this._df, this._at);
+        }
       }
       return this;
     }
