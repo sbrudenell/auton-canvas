@@ -8,6 +8,14 @@
 
 dynamic visualizations! !AutonCanvas was originally made to replace [http://www.jfree.org/jfreechart/ JFreeChart] for visualizing large datasets on the web.
 
+== are there any real-world usage examples? ==
+
+none that are public yet :)
+
+== how much faster is it, really? ==
+
+i'll have actual speed comparisons up soon!
+
 == i hear _(other library)_ is awesome. why would i want to use !AutonCanvas? ==
 
 there are many featureful frameworks that draw graphics cross-browser with javascript ([http://raphaeljs.com/ Raphael], [http://code.google.com/p/explorercanvas/ excanvas]), but they suffer for speed in various situations.
