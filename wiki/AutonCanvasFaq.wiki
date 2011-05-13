@@ -10,14 +10,10 @@ dynamic visualizations! !AutonCanvas was originally made to replace [http://www.
 
 == i hear _(other library)_ is awesome. why would i want to use !AutonCanvas? ==
 
-there are many frameworks that draw graphics cross-browser with javascript ([http://raphaeljs.com/ Raphael], [http://code.google.com/p/explorercanvas/ excanvas]), but they suffer for speed in various situations.
+there are many featureful frameworks that draw graphics cross-browser with javascript ([http://raphaeljs.com/ Raphael], [http://code.google.com/p/explorercanvas/ excanvas]), but they suffer for speed in various situations.
 
 if you need to draw complex graphics quickly, !AutonCanvas is your best bet.
 
 == [http://code.google.com/p/explorercanvas/ excanvas] lets me use [http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html the canvas element] i know and love. why doesn't !AutonCanvas just do that? ==
 
-in short: it's really slow.
-
-excanvas uses [http://www.w3.org/TR/NOTE-VML.html VML] to implement the canvas element's API. unfortunately, the two APIs don't look very similar: the canvas element uses immediate-mode drawing ("put pen down at 0,0; move to 10,10"), while VML uses retained-mode drawing (create circle element; set fill color to green; attach to document).
-
-VML is fastest when you re-use graphics elements, but the canvas element API has no way to express that the user intends to draw the same line twice. when re-drawing a scene, excanvas forgets all the VML graphics elements it already put on the page, and creates new ones every time. creating elements in IE is very slow. if all you need to do is resize one complex shape in a complex scene, this is incredibly wasteful!
+excanvas is very slow when drawing even modestly complex scenes in Internet Explorer. using VML as a back-end for the canvas element will always be slow; a more VML-like API is needed for VML to be fast.
