@@ -1,0 +1,7 @@
+== drawing model ==
+
+an !AutonCanvas lives on a webpage as a rectangular drawing canvas. you can only draw within the canvas, but you can always resize it.
+
+!AutonCanvas uses a retained drawing model -- you create graphics objects (like circles, rectangles, arbitrary shapes or groups of other objects), then set and update their properties. these objects live in a hierarchy, with an !AutonCanvas instance at the root.
+
+for efficiency and visual consistency, any changes to the canvas are automatically batched together using a javascript timer. you can also force any pending canvas changes using `canvas.draw()`.
