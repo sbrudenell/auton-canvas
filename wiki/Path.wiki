@@ -36,7 +36,7 @@ as of version 1.2, !AutonCanvas _does not_ specially handle `"hsl(...)"` or `"hs
 
 = fills =
 
-[Paths] support two styles of fill: simple (solid) fills, and two-tone linear gradient fills.
+[Path Paths] support two styles of fill: simple (solid) fills, and two-tone linear gradient fills.
 
 a simple fill is passed as just a [#colors color string]:
 
