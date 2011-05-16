@@ -1,7 +1,61 @@
-== drawing model ==
+= basics =
 
-an !AutonCanvas lives on a webpage as a rectangular drawing canvas. you can only draw within the canvas, but you can always resize it.
+an !AutonCanvas lives on a webpage as a rectangular drawing canvas. you can only draw within the canvas, but you can always resize it with `canvas.width()` and `canvas.height()`.
 
-!AutonCanvas uses a retained drawing model -- you create graphics objects (like circles, rectangles, arbitrary shapes or groups of other objects), then set and update their properties. these objects live in a hierarchy, with an !AutonCanvas instance at the root.
+!AutonCanvas uses a retained drawing model -- you create graphics objects (like circles, rectangles, arbitrary shapes or groups of other objects), then set and update their properties. these objects live in a hierarchy, with a [#auton.canvas.Canvas Canvas] instance at the root.
+
+= transformations =
+
+!AutonCanvas objects can be scaled or moved around, but not rotated.
+
+unlike [http://en.wikipedia.org/wiki/Scalable_Vector_Graphics SVG] elements, !AutonCanvas objects don't have a full transformation matrix; they just have a stored scale and translation.
+
+= batch drawing =
 
 for efficiency and visual consistency, any changes to the canvas are automatically batched together using a javascript timer. you can also force any pending canvas changes using `canvas.draw()`.
+
+you normally never need to call `canvas.draw()`. it's most useful when dealing with timing issues in different browsers, when timer events don't fire fast enough.
+
+= jQuery code conventions =
+
+like [http://jquery.com/ jQuery], most methods in !AutonCanvas double as both setters and getters, depending on whether an argument is passed ("`canvas.width(300)`" versus "`var w = canvas.width()`").
+
+similar to [http://jquery.com/ jQuery], all methods with no return value return `this`. you can use shorthand like `canvas.width(300).draw()`.
+
+= reference =
+
+== auton.canvas.Canvas ==
+
+extends [#auton.canvas.Group].
+
+*description*: a rectangular drawing canvas on a page. this is the attachment point for all other !AutonCanvas objects.
+
+|| *constructor* || *description* || *since* ||
+|| `Canvas(width?:Number, height?:Number, element?:Node)` || creates a new `Canvas` of `width` pixels by `height` pixels (defaults to 300x150), attached to `element`. || 1.0 ||
+
+|| *accessor* || *type* || *description* || *since* ||
+|| `element()` || `Node` || returns the root element. read-only. || 1.0 ||
+|| `width(width?:Number)` || `Number` || sets or gets the current width, in pixels. the width is not changed immediately; it is changed the next time the canvas is drawn. || 1.0 ||
+|| `height(height?:Number)` || `Number` || sets or gets the current height, in pixels. the height is not changed immediately; it is changed the next time the canvas is drawn. || 1.0 ||
+
+|| *method* || *description* || *since* ||
+|| `draw()` || forces all pending changes to be drawn immediately. || 1.0 ||
+|| `onAttach()` || TODO || 1.2 ||
+|| `onDetach()` || TODO || 1.2 ||
+
+== auton.canvas.Group ==
+
+extends [#auton.canvas.Node].
+
+*description*: a group of other objects.
+
+|| *constructor* || *description* || *since* ||
+|| `Group()` || creates a new `Group` || 1.0 ||
+
+|| *method* || *return type* || *description* || *since* ||
+|| `text(text?:String, font?:String, align?:String, valign?:String)` || [#auton.canvas.Text Text] || creates a new [#auton.canvas.Text Text], adds it to this `Group`, and returns it. || TODO ||
+|| `image(src?:String)` || [#auton.canvas.Image Image] || creates a new [#auton.canvas.Image Image], adds it to this `Group`, and returns it. || TODO ||
+|| `path(data?:Array)` || [#auton.canvas.Path Path] || creates a new [#auton.canvas.Path Path], adds it to this `Group`, and returns it. || 1.0 ||
+|| `group()` || [#auton.canvas.Group Group] || creates a new [#auton.canvas.Group Group], adds it to this one, and returns the new child [#auton.canvas.Group Group]. || 1.0 ||
+|| `add(child:auton.canvas.Node)` || `this` || adds an existing !AutonCanvas object as a child at the end of this [#auton.canvas.Group Group]. equivalent to `insertBefore(child, undefined)`. || 1.0 ||
+|| `insertBefore(child:auton.canvas.Node, before?)` || `this` || inserts an existing !AutonCanvas object as a child of this [#auton.canvas.Group Group], such that it occurs before `before`. `before` may be a `Number` specifying an index, or another child !AutonCanvas object. || 1.0 ||
