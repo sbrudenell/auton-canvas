@@ -56,6 +56,10 @@ a linear gradient fill is passed as an `Array` of two [#colors color strings], a
 path.fill(['transparent', 'black'], Math.PI / 2);
 }}}
 
+= transformations =
+
+unlike [http://www.w3.org/TR/SVG/ SVG] paths, _[Path] stroke lines never scale_. the default 1-pixel [Path] stroke will be 1 screen pixel wide even when the path is scaled by 10.
+
 = see also =
 
 [Reference#auton.canvas.Path code reference]
