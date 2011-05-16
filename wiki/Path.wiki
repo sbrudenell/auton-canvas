@@ -4,7 +4,7 @@
 
 [Path Paths] are the most versatile expressive objects in !AutonCanvas. they can draw arbitrary shapes, described by a language modeled on [http://www.w3.org/TR/SVG/paths.html#PathData SVG's path language].
 
-= path data =
+= data =
 
 [Path] data is passed as an `Array` instead of a `String`, contrary to many graphics frameworks. in a data array, a path instruction is followed by a variable number of arguments. for example:
 
@@ -23,3 +23,37 @@ var data = [
 }}}
 
 the above data would draw a circle of radius `50` centered on `100,100`, overlapping a square from `0,0` to `100,100`. note how the `'R'` instruction takes 3 arguments, `'M'` and `'L'` take two, and `'E'` takes none.
+
+= colors =
+
+[Path] colors are passed as `String`s.
+
+in the VML implementation, !AutonCanvas has special logic to handle `"rgba(...)"` strings, and the special string `"transparent"`, so alpha-blended [Path Paths] can be created in Internet Explorer 6-8.
+
+in all other cases, color `String`s are passed directly to the browser. it's a good idea to use HTML color strings like `"#0a0"`, which work in all browsers.
+
+as of version 1.2, !AutonCanvas _does not_ specially handle `"hsl(...)"` or `"hsla(...)"` color strings.
+
+= fills =
+
+[Paths] support two styles of fill: simple (solid) fills, and two-tone linear gradient fills.
+
+a simple fill is passed as just a [#colors color string]:
+
+{{{
+// transparent green fill
+
+path.fill('rgba(0, 60%, 0, 0.5)');
+}}}
+
+a linear gradient fill is passed as an `Array` of two [#colors color strings], and an optional angle:
+
+{{{
+// fill fades from transparent to black, from bottom to top
+
+path.fill(['transparent', 'black'], Math.PI / 2);
+}}}
+
+= see also =
+
+[Reference#auton.canvas.Path code reference]
