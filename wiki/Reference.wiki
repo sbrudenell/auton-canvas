@@ -22,6 +22,7 @@ _*note*_: the [#CanvasNode CanvasNode] is an "abstract" type. it is not exposed 
 || `visible(visible:Boolean)` || `this` || sets whether this node is visible. || 1.0 ||
 || `show()` || `this` || sets this node to be visible. equivalent to `visible(true)`. || 1.0 ||
 || `hide()` || `this` || sets this node to be hidden. equivalent to `visible(false)`. || 1.0 ||
+|| `transform()` || `Object` || gets the translation and scale, in the form `{"t": [tx, ty], "s": [sx, sy]}`. see [Basics#transformations transformations]. || 1.0 ||
 || `transform(tx:Number, ty:Number, sx:Number, sy:Number)` || `this` || sets the translation and scale. see [Basics#transformations transformations]. || 1.0 ||
 || `translate()` || `Array` || gets the translation, in the form `[tx, ty]`. see [Basics#transformations transformations]. || 1.0 ||
 || `translate(tx:Number, ty:Number)` || `this` || sets the translation. see [Basics#transformations transformations]. || 1.0 ||
