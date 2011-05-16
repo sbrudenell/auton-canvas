@@ -1,0 +1,27 @@
+#summary fundamental ideas and coding conventions.
+
+= basics =
+
+an !AutonCanvas lives on a webpage as a rectangular drawing canvas. you can only draw within the canvas, but you can always resize it with `canvas.width()` and `canvas.height()`.
+
+!AutonCanvas uses a retained drawing model -- you create child [CanvasNode CanvasNodes] ([Path Paths], [Image Images], [Text], or [Group Groups] of other [CanvasNode CanvasNodes]), then set and update their properties. these objects live in a hierarchy, with a [Canvas] instance at the root.
+
+[CanvasNode CanvasNodes] _are not DOM elements_; you cannot attach them to your page arbitrarily.
+
+= transformations =
+
+[CanvasNode CanvasNodes] can be scaled or moved around, but _not rotated_.
+
+unlike [http://www.w3.org/TR/SVG/ SVG] elements, [CanvasNode CanvasNodes] _don't have a full transformation matrix_. they just have a stored scale and translation.
+
+= batch drawing =
+
+for efficiency and visual consistency, any changes to the canvas are automatically batched together using a javascript timer. you can also force any pending canvas changes using `canvas.draw()`.
+
+you normally never need to call `canvas.draw()`. it's most useful when dealing with timing issues in different browsers, when timer events don't fire in a timely manner.
+
+= jQuery code conventions =
+
+like [http://jquery.com/ jQuery], most methods in !AutonCanvas double as both setters and getters, depending on whether an argument is passed ("`canvas.width(300)`" versus "`var w = canvas.width()`").
+
+similar to [http://jquery.com/ jQuery], all methods with no return value return `this`. you can use shorthand like `canvas.width(300).draw()`.
