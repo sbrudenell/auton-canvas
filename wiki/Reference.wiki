@@ -10,34 +10,35 @@
 
 extends [#auton.canvas.Group Group].
 
-*description*: a rectangular drawing canvas on a page. this is the attachment point for all other [#CanvasNode CanvasNode]s.
+*main article*: [Canvas].
 
 || *constructor* || *description* || *since* ||
-|| `Canvas(width?:Number, height?:Number, element?:Node)` || creates a new `Canvas` of `width` pixels by `height` pixels (defaults to 300x150), attached to `element`. || 1.0 ||
+|| `Canvas([width:Number, height:Number [,element:Node]])` || creates a new `Canvas` of `width` pixels by `height` pixels (defaults to 300x150), attached to `element`. || 1.0 ||
+|| `Canvas([width:Number, height:Number [,elementId:String]])` || creates a new `Canvas` of `width` pixels by `height` pixels (defaults to 300x150), attached to the element with id `elementId`. this constructor calls `document.getElementById`, so you should only use it after the document has loaded. || 1.0 ||
 
-|| *accessor* || *type* || *description* || *default* || *since* ||
-|| `element()` || `Node` || returns the root element. read-only. || _implementation-defined_ || 1.0 ||
-|| `width(width?:Number)` || `Number` || sets or gets the current width, in pixels. the width is not changed immediately; it is changed the next time the canvas is drawn. || `300` || 1.0 ||
-|| `height(height?:Number)` || `Number` || sets or gets the current height, in pixels. the height is not changed immediately; it is changed the next time the canvas is drawn. || `150` || 1.0 ||
-
-|| *method* || *description* || *since* ||
-|| `draw()` || forces all pending changes to be drawn immediately. || 1.0 ||
-|| `onAttach()` || TODO || 1.2 ||
-|| `onDetach()` || TODO || 1.2 ||
+|| *method* || *returns* || *description* || *since* ||
+|| `element()` || `Node` || returns the root element of this `Canvas`. || 1.0 ||
+|| `width()` || `Number` || gets the current width, in pixels. || 1.0 ||
+|| `width(width:Number)` || `this` || sets the current width, in pixels. the width is not changed immediately; it is changed the next time the canvas is drawn. || 1.0 ||
+|| `height()` || `Number` || gets the current height, in pixels. || 1.0 ||
+|| `height(height:Number)` || `this` || sets the current height, in pixels. the height is not changed immediately; it is changed the next time the canvas is drawn. || 1.0 ||
+|| `draw()` || `this` || forces all pending changes to be drawn immediately. || 1.0 ||
+|| `onAttach()` || `this` || TODO || 1.2 ||
+|| `onDetach()` || `this` || TODO || 1.2 ||
 
 == auton.canvas.Group ==
 
 extends [#CanvasNode CanvasNode].
 
-*description*: a group of other objects. especially useful for applying [#transformations transformations] to many other objects.
+*main article*: [Group].
 
 || *constructor* || *description* || *since* ||
 || `Group()` || creates a new `Group` || 1.0 ||
 
 || *method* || *return type* || *description* || *since* ||
-|| `text(text?:String, font?:String, align?:String, valign?:String)` || [#auton.canvas.Text Text] || creates a new [#auton.canvas.Text Text], adds it to this `Group`, and returns it. || TODO ||
-|| `image(src?:String)` || [#auton.canvas.Image Image] || creates a new [#auton.canvas.Image Image], adds it to this `Group`, and returns it. || TODO ||
-|| `path(data?:Array)` || [#auton.canvas.Path Path] || creates a new [#auton.canvas.Path Path], adds it to this `Group`, and returns it. || 1.0 ||
+|| `text([text:String [,font:String [,align:String [,valign:String]]]])` || [#auton.canvas.Text Text] || creates a new [#auton.canvas.Text Text], adds it to this [#auton.canvas.Group Group], and returns it. || TODO ||
+|| `image([src:String])` || [#auton.canvas.Image Image] || creates a new [#auton.canvas.Image Image], adds it to this [#auton.canvas.Group Group], and returns it. || TODO ||
+|| `path([data:Array])` || [#auton.canvas.Path Path] || creates a new [#auton.canvas.Path Path], adds it to this [#auton.canvas.Group Group], and returns it. || 1.0 ||
 || `group()` || [#auton.canvas.Group Group] || creates a new [#auton.canvas.Group Group], adds it to this one, and returns the new child [#auton.canvas.Group Group]. || 1.0 ||
 || `add(child:CanvasNode)` || `this` || adds an existing [#CanvasNode CanvasNode] as a child at the end of this [#auton.canvas.Group Group]. equivalent to `insertBefore(child, undefined)`. || 1.0 ||
 || `insertBefore(child:CanvasNode, before?)` || `this` || inserts an existing [#CanvasNode CanvasNode] as a child of this [#auton.canvas.Group Group], such that it occurs before `before`. `before` may be a `Number` specifying an index, or another child [#CanvasNode CanvasNode]. if `before` is unspecified or doesn't refer to a known child, then `child` is inserted at the end of this [#auton.canvas.Group Group] || 1.0 ||
@@ -48,24 +49,33 @@ extends [#CanvasNode CanvasNode].
 
 extends [#CanvasNode CanvasNode].
 
-*description*: an arbitrary shape. accepts a simple path language modeled on [http://www.w3.org/TR/SVG/paths.html#PathData SVG's path language]. see [#path-data path data].
+*main article*: [Path].
+
+|| *constructor* || *description* || *since* ||
+|| `Path([data:Array])` || creates a new [#auton.canvas.Path Path], with the given `data`. || 1.0 ||
+
+|| *method* || *return type* || *description* || *since* ||
+|| `data()` || `Array` || gets the path data. see [Path#data path data]. || 1.0 ||
+|| `data(data:Array)` || `this` || sets the path data. see [Path#data path data]. || 1.0 ||
+|| `clear()` || `this` || clears the path data. equivalent to `data(undefined)`. see [Path#data path data]. || 1.0 ||
+|| `fill()` || `Array` or `String` || gets the fill. see [Path#fills path fills]. || 1.0 ||
+|| `fill(fill:String)` || `this` || sets a simple fill. see [Path#fills path fills]. || 1.0 ||
+|| `fill(fill:Array [,angle:Number])` || `this` || sets a linear gradient fill. see [Path#fills path fills]. || 1.0 ||
+|| `fill(fill:undefined)` || `this` || unsets the fill. || 1.0 ||
+|| `stroke()` || `String` || gets the stroke color. see [Path#colors path colors]. || 1.0 ||
+|| `stroke(stroke:String)` || `this` || sets the stroke color. see [Path#colors path colors]. || 1.0 ||
+|| `stroke(stroke:undefined)` || `this` || unsets the stroke. || 1.0 ||
+|| `strokeWidth()` || `Number` || gets the stroke width, in pixels. see [Path#transformations path transformations]. || 1.0 ||
+|| `strokeWidth(strokeWidth:Number)` || `this` || sets the stroke width, in pixels. see [Path#transformations path transformations]. || 1.0 ||
+|| `bounds()` || `Array` || gets the coordinate bounds of the path data. see [TODO]. || 1.0 ||
+|| `bounds(minX:Number, minY:Number, maxX:Number, maxY:Number)` || `this` || sets the coordinate bounds of the path data. see [TODO]. || 1.0 ||
+|| `keep()` || `Boolean` || gets whether the [#auton.canvas.Path Path] should retain its `data` array after drawing. see [TODO]. || TODO ||
+|| `keep(keep:Boolean)` || `this` || sets whether the [#auton.canvas.Path Path] should retain its `data` array after drawing. see [TODO]. || TODO ||
+
+=== path instructions ===
 
 || *instruction* || *name* || *arguments* || *description* || *since* ||
 || *`M`* || moveto || `x`, `y` || begins a new sub-path at `x,y`. || 1.0 ||
 || *`L`* || lineto || `x`, `y` || draws a line from the current point to `x,y`. || 1.0 ||
 || *`R`*, *`r`* || circleat, cwcircleat || `x`, `y`, `radius` || begins a new sub-path, and draws a circle centered at `x,y` with radius `radius`. `*R*` and *`r`* draw anticlockwise and clockwise circles, respectively. || 1.0 ||
 || *`E`* || delimit || _none_ || fills the current set of sub-paths with the path's fill, and begins a new set of sub-paths. || 1.0 ||
-
-|| *constructor* || *description* || *since* ||
-|| `Path(data?:Array)` || creates a new [#auton.canvas.Path Path], with the given `data`. see [#path-data path data]. || 1.0 ||
-
-|| *accessor* || *type* || *description* || *default* || *since* ||
-|| `data(data?:Array)` || `Array` || sets or gets the path data. see [#path-data path data]. || `[]` || 1.0 ||
-|| `fill(fill?, angle?:Number)` || `Array` or `String` || sets or gets the fill. see [#path-fills path fills]. || `undefined` || 1.0 ||
-|| `stroke(stroke?:String)` || `String` || sets or gets the stroke color. see [#path-colors path colors]. || `black` || 1.0 ||
-|| `strokeWidth(strokeWidth?:Number)` || `Number` || sets or gets the stroke width, in pixels. see [#transformations transformations]. || `1` || 1.0 ||
-|| `bounds(minX?:Number, minY?:Number, maxX?:Number, maxY?:Number)` || `Array` || sets or gets the coordinate bounds of the path data. see TODO. || `[0, 0, 0, 0]` || 1.0 ||
-|| `keep(keep?:Boolean)` || `Boolean` || sets or gets whether the [#auton.canvas.Path Path] should retain its `data` array after drawing. see TODO. || `false` || TODO ||
-
-|| *method* || *description* || *since* ||
-|| `clear()` || clears the path data. || 1.0 ||
