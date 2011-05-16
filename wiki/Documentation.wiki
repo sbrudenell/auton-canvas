@@ -2,13 +2,15 @@
 
 an !AutonCanvas lives on a webpage as a rectangular drawing canvas. you can only draw within the canvas, but you can always resize it with `canvas.width()` and `canvas.height()`.
 
-!AutonCanvas uses a retained drawing model -- you create graphics objects (like circles, rectangles, arbitrary shapes or groups of other objects), then set and update their properties. these objects live in a hierarchy, with a [#auton.canvas.Canvas Canvas] instance at the root.
+!AutonCanvas uses a retained drawing model -- you create child [#CanvasNode CanvasNode]s ([#auton.canvas.Path Path]s, [#auton.canvas.Image Image]s, [#auton.canvas.Text Text], or [#auton.canvas.Group Group]s of other [#CanvasNode CanvasNode]s), then set and update their properties. these objects live in a hierarchy, with a [#auton.canvas.Canvas Canvas] instance at the root.
+
+[#CanvasNode CanvasNode]s _are not DOM elements_; you cannot attach them to your page arbitrarily.
 
 = transformations =
 
-!AutonCanvas objects can be scaled or moved around, but not rotated.
+[#CanvasNode CanvasNode]s can be scaled or moved around, but _not rotated_.
 
-unlike [http://en.wikipedia.org/wiki/Scalable_Vector_Graphics SVG] elements, !AutonCanvas objects don't have a full transformation matrix; they just have a stored scale and translation.
+unlike [http://en.wikipedia.org/wiki/Scalable_Vector_Graphics SVG] elements, [#CanvasNode CanvasNode]s don't have a full transformation matrix; they just have a stored scale and translation.
 
 = batch drawing =
 
@@ -26,9 +28,9 @@ similar to [http://jquery.com/ jQuery], all methods with no return value return 
 
 == auton.canvas.Canvas ==
 
-extends [#auton.canvas.Group].
+extends [#auton.canvas.Group Group].
 
-*description*: a rectangular drawing canvas on a page. this is the attachment point for all other !AutonCanvas objects.
+*description*: a rectangular drawing canvas on a page. this is the attachment point for all other [#CanvasNode CanvasNode]s.
 
 || *constructor* || *description* || *since* ||
 || `Canvas(width?:Number, height?:Number, element?:Node)` || creates a new `Canvas` of `width` pixels by `height` pixels (defaults to 300x150), attached to `element`. || 1.0 ||
@@ -45,7 +47,7 @@ extends [#auton.canvas.Group].
 
 == auton.canvas.Group ==
 
-extends [#auton.canvas.Node].
+extends [#CanvasNode CanvasNode].
 
 *description*: a group of other objects.
 
@@ -57,5 +59,5 @@ extends [#auton.canvas.Node].
 || `image(src?:String)` || [#auton.canvas.Image Image] || creates a new [#auton.canvas.Image Image], adds it to this `Group`, and returns it. || TODO ||
 || `path(data?:Array)` || [#auton.canvas.Path Path] || creates a new [#auton.canvas.Path Path], adds it to this `Group`, and returns it. || 1.0 ||
 || `group()` || [#auton.canvas.Group Group] || creates a new [#auton.canvas.Group Group], adds it to this one, and returns the new child [#auton.canvas.Group Group]. || 1.0 ||
-|| `add(child:auton.canvas.Node)` || `this` || adds an existing !AutonCanvas object as a child at the end of this [#auton.canvas.Group Group]. equivalent to `insertBefore(child, undefined)`. || 1.0 ||
-|| `insertBefore(child:auton.canvas.Node, before?)` || `this` || inserts an existing !AutonCanvas object as a child of this [#auton.canvas.Group Group], such that it occurs before `before`. `before` may be a `Number` specifying an index, or another child !AutonCanvas object. || 1.0 ||
+|| `add(child:CanvasNode)` || `this` || adds an existing [#CanvasNode CanvasNode] as a child at the end of this [#auton.canvas.Group Group]. equivalent to `insertBefore(child, undefined)`. || 1.0 ||
+|| `insertBefore(child:CanvasNode, before?)` || `this` || inserts an existing [#CanvasNode CanvasNode] as a child of this [#auton.canvas.Group Group], such that it occurs before `before`. `before` may be a `Number` specifying an index, or another child [#CanvasNode CanvasNode]. if `before` is unspecified or doesn't refer to a known child, then `child` is inserted at the end of this [#auton.canvas.Group Group] || 1.0 ||
