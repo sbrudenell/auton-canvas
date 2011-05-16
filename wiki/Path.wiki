@@ -4,6 +4,8 @@
 
 [Path Paths] are the most versatile expressive objects in !AutonCanvas. they can draw arbitrary shapes, described by a language modeled on [http://www.w3.org/TR/SVG/paths.html#PathData SVG's path language].
 
+a [Path] can be stroked (outlined), filled, or both. a single [Path] may only have one stroke color and one fill color.
+
 = data =
 
 [Path] data is passed as an `Array` instead of a `String`, contrary to many graphics frameworks. in a data array, a path instruction is followed by a variable number of arguments. for example:
