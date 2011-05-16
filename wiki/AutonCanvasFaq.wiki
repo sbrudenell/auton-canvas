@@ -8,6 +8,8 @@
 
 dynamic visualizations! !AutonCanvas was originally made to replace [http://www.jfree.org/jfreechart/ JFreeChart] for visualizing large datasets on the web.
 
+it should be possible to implement the flash-based [http://www.google.com/finance?q=NASDAQ:GOOG Google Finance chart widget] entirely using !AutonCanvas.
+
 == are there any real-world usage examples? ==
 
 none that are public yet :)
