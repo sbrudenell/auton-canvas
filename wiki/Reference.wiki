@@ -6,6 +6,36 @@
 
 = reference = 
 
+== !CanvasNode ==
+
+*main article*: [CanvasNode].
+
+_*note*_: the [#CanvasNode CanvasNode] is an "abstract" type. it is not exposed directly through the API, as it is not meant to be instantiated or extended directly.
+
+|| *method* || *return type* || *description* || *since* ||
+|| `canvas()` || [#auton.canvas.Canvas Canvas] || returns the root [#auton.canvas.Canvas Canvas] this node is directly or indirectly attached to, if any. || TODO ||
+|| `parent()` || [#auton.canvas.Group Group] || returns the [#auton.canvas.Group Group] this node is directly attached to, if any. || 1.0 ||
+|| `toBack()` || `this` || sends this node to the rear-most (lowest-index) position in its parent [#auton.canvas.Group Group]. || 1.0 ||
+|| `toFront()` || `this` || sends this node to the rear-most (lowest-index) position in its parent [#auton.canvas.Group Group]. || 1.0 ||
+|| `remove()` || `this` || removes this node from its parent [#auton.canvas.Group Group]. || 1.0 ||
+|| `visible()` || `Boolean` || gets whether this node is visible. || 1.0 ||
+|| `visible(visible:Boolean)` || `this` || sets whether this node is visible. || 1.0 ||
+|| `show()` || `this` || sets this node to be visible. equivalent to `visible(true)`. || 1.0 ||
+|| `hide()` || `this` || sets this node to be hidden. equivalent to `visible(false)`. || 1.0 ||
+|| `transform(tx:Number, ty:Number, sx:Number, sy:Number)` || `this` || sets the translation and scale. see [Basics#transformations transformations]. || 1.0 ||
+|| `translate()` || `Array` || gets the translation, in the form `[tx, ty]`. see [Basics#transformations transformations]. || 1.0 ||
+|| `translate(tx:Number, ty:Number)` || `this` || sets the translation. see [Basics#transformations transformations]. || 1.0 ||
+|| `scale()` || `Array` || gets the scale, in the form `[sx, sy]`. see [Basics#transformations transformations]. || 1.0 ||
+|| `scale(sx:Number, sy:Number)` || `this` || sets the scale. see [Basics#transformations transformations]. || 1.0 ||
+|| `translateX()` || `Number` || gets the x-translation. see [Basics#transformations transformations]. || 1.0 ||
+|| `translateX(tx:Number)` || `this` || sets the x-translation. see [Basics#transformations transformations]. || 1.0 ||
+|| `translateY()` || `Number` || gets the y-translation. see [Basics#transformations transformations]. || 1.0 ||
+|| `translateY(ty:Number)` || `this` || sets the y-translation. see [Basics#transformations transformations]. || 1.0 ||
+|| `scaleX()` || `Number` || gets the x-scale. see [Basics#transformations transformations]. || 1.0 ||
+|| `scaleX(sx:Number)` || `this` || sets the x-scale. see [Basics#transformations transformations]. || 1.0 ||
+|| `scaleY()` || `Number` || gets the y-scale. see [Basics#transformations transformations]. || 1.0 ||
+|| `scaleY(sy:Number)` || `this` || sets the y-scale. see [Basics#transformations transformations]. || 1.0 ||
+
 == auton.canvas.Canvas ==
 
 extends [#auton.canvas.Group Group].
