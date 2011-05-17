@@ -8,6 +8,15 @@ it uses the HTML5 canvas element or VML.
 
 while speedy, !AutonCanvas is fairly low-level. you can think of it as the C of javascript graphics. :)
 
+== what browsers does it work with? ==
+
+ * Internet Explorer 6 through 8
+ * Internet Explorer 9 (standards mode only)
+ * Firefox 3.5+ (all features except [Text] work in Firefox 3.0)
+ * Chrome (all versions)
+
+i have not tested !AutonCanvas in Safari or Opera.
+
 == what would i use it for? ==
 
 dynamic visualizations! !AutonCanvas was originally made to replace [http://www.jfree.org/jfreechart/ JFreeChart] for visualizing large datasets on the web.
