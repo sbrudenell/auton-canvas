@@ -108,7 +108,7 @@ extends [#CanvasNode CanvasNode].
 || *instruction* || *name* || *arguments* || *description* || *since* ||
 || *`M`* || moveto || `x`, `y` || begins a new sub-path at `x,y`. || 1.0 ||
 || *`L`* || lineto || `x`, `y` || draws a line from the current point to `x,y`. || 1.0 ||
-|| *`R`*, *`r`* || circleat, cwcircleat || `x`, `y`, `radius` || begins a new sub-path, and draws a circle centered at `x,y` with radius `radius`. `*R*` and *`r`* draw anticlockwise and clockwise circles, respectively. || 1.0 ||
+|| *`R`*, *`r`* || circleat, cwcircleat || `x`, `y`, `radius` || begins a new sub-path, and draws a circle centered at `x,y` with radius `radius`. *`R`* and *`r`* draw anticlockwise and clockwise circles, respectively. || 1.0 ||
 || *`E`* || delimit || _none_ || fills the current set of sub-paths with the path's fill, and begins a new set of sub-paths. || 1.0 ||
 
 == auton.canvas.Text ==
