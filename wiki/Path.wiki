@@ -1,4 +1,4 @@
-#summary Overview of Path objects, the most versatile objects in AutonCanvas.
+#summary overview of Path objects, the most versatile objects in AutonCanvas.
 
 = Path =
 
@@ -86,6 +86,8 @@ path.fill(['transparent', 'black'], Math.PI / 2);
 
 unlike [http://www.w3.org/TR/SVG/ SVG] paths, _Path stroke lines never scale_. the default 1-pixel Path stroke will be 1 screen pixel wide even when the path is scaled by 10.
 
+see [Basics#transformations more on transformations].
+
 = implementation =
 
 in the VML implementation, Paths are implemented by `<v:shape>` elements. the HTML5 implementation re-reads the [#data data array] each time the canvas is drawn, calling instructions like `ctx.moveTo()`, `ctx.lineTo()`, `ctx.stroke()` and `ctx.fill()`.
@@ -114,7 +116,7 @@ the tolerance of the bounds depends largely on the use of gradient [#fills fills
 
 === data coordinate bounds example ===
 
-the [Demos#bubbles bubble demo] uses a single Path to draw many bubbles. they are randomly positioned in a rectangular area of `W` by `H`, and have a random radius from 0 to `R`. the code to construct the path looks like this:
+the [Demos#bubbles bubble demo] uses a single Path to draw many bubbles. they are randomly positioned in a rectangular area from `0,0` to `W,H`, and have a random radius from `0` to `R`. the code to construct the path looks like this:
 
 {{{
 // construct the data array
