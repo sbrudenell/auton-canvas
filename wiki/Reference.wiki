@@ -13,7 +13,7 @@
 _*note*_: the [#CanvasNode CanvasNode] is an "abstract" type. it is not exposed directly through the API, as it is not meant to be instantiated or extended directly.
 
 || *method* || *return type* || *description* || *since* ||
-|| `canvas()` || [#auton.canvas.Canvas Canvas] || returns the root [#auton.canvas.Canvas Canvas] this node is directly or indirectly attached to, if any. || TODO ||
+|| `canvas()` || [#auton.canvas.Canvas Canvas] || returns the root [#auton.canvas.Canvas Canvas] this node is directly or indirectly attached to, if any. || 1.0 ||
 || `parent()` || [#auton.canvas.Group Group] || returns the [#auton.canvas.Group Group] this node is directly attached to, if any. || 1.0 ||
 || `toBack()` || `this` || sends this node to the rear-most (lowest-index) position in its parent [#auton.canvas.Group Group]. || 1.0 ||
 || `toFront()` || `this` || sends this node to the rear-most (lowest-index) position in its parent [#auton.canvas.Group Group]. || 1.0 ||
@@ -67,8 +67,8 @@ extends [#CanvasNode CanvasNode].
 || `Group()` || creates a new `Group` || 1.0 ||
 
 || *method* || *return type* || *description* || *since* ||
-|| `text([text:String [,font:String [,align:String [,valign:String]]]])` || [#auton.canvas.Text Text] || creates a new [#auton.canvas.Text Text], adds it to this [#auton.canvas.Group Group], and returns it. || TODO ||
-|| `image([src:String])` || [#auton.canvas.Image Image] || creates a new [#auton.canvas.Image Image], adds it to this [#auton.canvas.Group Group], and returns it. || TODO ||
+|| `text([text:String [,font:String [,align:String [,valign:String]]]])` || [#auton.canvas.Text Text] || creates a new [#auton.canvas.Text Text], adds it to this [#auton.canvas.Group Group], and returns it. || 1.0 ||
+|| `image([src:String])` || [#auton.canvas.Image Image] || creates a new [#auton.canvas.Image Image], adds it to this [#auton.canvas.Group Group], and returns it. || 1.2 ||
 || `path([data:Array])` || [#auton.canvas.Path Path] || creates a new [#auton.canvas.Path Path], adds it to this [#auton.canvas.Group Group], and returns it. || 1.0 ||
 || `group()` || [#auton.canvas.Group Group] || creates a new [#auton.canvas.Group Group], adds it to this one, and returns the new child [#auton.canvas.Group Group]. || 1.0 ||
 || `add(child:CanvasNode)` || `this` || adds an existing [#CanvasNode CanvasNode] as a child at the end of this [#auton.canvas.Group Group]. equivalent to `insertBefore(child, undefined)`. || 1.0 ||
@@ -100,8 +100,8 @@ extends [#CanvasNode CanvasNode].
 || `strokeWidth(strokeWidth:Number)` || `this` || sets the stroke width, in pixels. see [Path#transformations path transformations]. || 1.0 ||
 || `bounds()` || `Array` || gets the coordinate bounds of the path data. see [TODO]. || 1.0 ||
 || `bounds(minX:Number, minY:Number, maxX:Number, maxY:Number)` || `this` || sets the coordinate bounds of the path data. see [TODO]. || 1.0 ||
-|| `keep()` || `Boolean` || gets whether the [#auton.canvas.Path Path] should retain its `data` array after drawing. see [TODO]. || TODO ||
-|| `keep(keep:Boolean)` || `this` || sets whether the [#auton.canvas.Path Path] should retain its `data` array after drawing. see [TODO]. || TODO ||
+|| `keep()` || `Boolean` || gets whether the [#auton.canvas.Path Path] should retain its `data` array after drawing. see [TODO]. || 1.2 ||
+|| `keep(keep:Boolean)` || `this` || sets whether the [#auton.canvas.Path Path] should retain its `data` array after drawing. see [TODO]. || 1.2 ||
 
 === path instructions ===
 
@@ -118,28 +118,32 @@ extends [#CanvasNode CanvasNode].
 *main article*: [Text].
 
 || *constructor* || *description* || *since* ||
-|| `Text([text:String [,font:String [,align:String [,valign:String]]]])` || creates a new [#auton.canvas.Text Text], with the given `text`, `font`, `align` and `valign`. see `text(text:String)`, `font(font:String)`, `align(align:String)` and `valign(align:String)` for meanings and requirements on these fields. || TODO ||
+|| `Text([text:String [,font:String [,align:String [,valign:String]]]])` || creates a new [#auton.canvas.Text Text], with the given `text`, `font`, `align` and `valign`. see `text(text:String)`, `font(font:String)`, `align(align:String)` and `valign(align:String)` for meanings and requirements on these fields. || 1.0 ||
 
 || *method* || *return type* || *description* || *since* ||
-|| `text()` || `String` || gets the displayed text value. || TODO ||
-|| `text(text:String)` || `this` || sets the displayed text value. || TODO ||
-|| `font()` || `String` || gets the font string. || TODO ||
-|| `font(font:String)` || `this` || sets the font string. the format is the same as [http://www.w3.org/TR/CSS2/fonts.html#font-shorthand the css shorthand "font" property]. || TODO ||
-|| `align()` || `String` || gets the horizontal alignment. || TODO ||
-|| `align(align:String)` || `this` || sets the horizontal alignment. must be one of the ALIGN constants, explained below. || TODO ||
-|| `valign()` || `String` || gets the vertical alignment. || TODO ||
-|| `valign(valign:String)` || `this` || sets the vertical alignment. must be one of the VALIGN constants, explained below. || TODO ||
-|| `stroke()` || `String` || gets the text color. || TODO ||
-|| `stroke(stroke:String)` || `this` || sets the text color. || TODO ||
+|| `text()` || `String` || gets the displayed text value. || 1.0 ||
+|| `text(text:String)` || `this` || sets the displayed text value. || 1.0 ||
+|| `font()` || `String` || gets the font string. || 1.0 ||
+|| `font(font:String)` || `this` || sets the font string. the format is the same as [http://www.w3.org/TR/CSS2/fonts.html#font-shorthand the css shorthand "font" property]. || 1.0 ||
+|| `align()` || `String` || gets the horizontal alignment. || 1.0 ||
+|| `align(align:String)` || `this` || sets the horizontal alignment. must be one of the horizontal alignment constants, explained below. || 1.0 ||
+|| `valign()` || `String` || gets the vertical alignment. || 1.0 ||
+|| `valign(valign:String)` || `this` || sets the vertical alignment. must be one of the vertical alignment constants, explained below. || 1.0 ||
+|| `stroke()` || `String` || gets the text color. || 1.0 ||
+|| `stroke(stroke:String)` || `this` || sets the text color. || 1.0 ||
 
-=== constants ===
+=== horizontal alignment constants ===
 
-|| *name* || *value* || *description* || *since* ||
-|| `Text.ALIGN_LEFT` || `"left"` || left horizontal alignment. the x-origin of the text will be at the leftmost edge. see [Basics#transformations transformations]. || TODO ||
-|| `Text.ALIGN_RIGHT` || `"right"` || right horizontal alignment. the x-origin of the text will be at the rightmost edge. see [Basics#transformations transformations]. || TODO ||
-|| `Text.ALIGN_CENTER` || `"center"` || center horizontal alignment. the x-origin of the text will be in the middle of the text. see [Basics#transformations transformations]. || TODO ||
-|| `Text.VALIGN_MIDDLE` || `"middle"` || middle vertical alignment. the y-origin of the text will be in the middle of the text. see [Basics#transformations transformations]. || TODO ||
-|| `Text.VALIGN_BASELINE` || `"baseline"` || baseline vertical alignment. the y-origin of the text will be at the alphabetic baseline of the text. see [Basics#transformations transformations]. || 1.2 ||
+|| *value* || *description* || *since* ||
+|| `"left"` || left horizontal alignment. the x-origin of the text will be at the leftmost edge. see [Basics#transformations transformations]. || 1.0 ||
+|| `"right"` || right horizontal alignment. the x-origin of the text will be at the rightmost edge. see [Basics#transformations transformations]. || 1.0 ||
+|| `"center"` || center horizontal alignment. the x-origin of the text will be in the middle of the text. see [Basics#transformations transformations]. || 1.0 ||
+
+=== vertical alignment constants ===
+
+|| *value* || *description* || *since* ||
+|| `"middle"` || middle vertical alignment. the y-origin of the text will be in the middle of the text. see [Basics#transformations transformations]. || 1.0 ||
+ || `"baseline"` || baseline vertical alignment. the y-origin of the text will be at the alphabetic baseline of the text. see [Basics#transformations transformations]. || 1.2 ||
 
 == auton.canvas.Image ==
 
