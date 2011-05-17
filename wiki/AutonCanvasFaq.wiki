@@ -59,3 +59,9 @@ VML does support rotation, which may be added in the future. i don't yet have a 
 == [http://raphaeljs.com/ Raphael] gives me DOM elements i'm familiar with. why does !AutonCanvas use the canvas element? ==
 
 firefox and chrome seem to render the canvas element much faster than the alternative, SVG. speed is the first design goal of !AutonCanvas.
+
+== why is there no support for IE9 in quirks mode? ==
+
+*IE9 does _NOT_ support the canvas element in quirks mode*, and does not support VML in any mode.
+
+IE9 does support SVG even in quirks mode, but i can't find a way to transform a path in SVG while keeping the original stroke width (see [Path#transformations path transformations), a severe visual incompatibility.
