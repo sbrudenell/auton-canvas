@@ -1,0 +1,9 @@
+#summary showcase of simple tests, demonstrating the speed (and some limitations) of AutonCanvas.
+
+= bubbles =
+
+TODO
+
+= chart line =
+
+TODO
