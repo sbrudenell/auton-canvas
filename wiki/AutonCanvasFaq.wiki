@@ -37,7 +37,7 @@ none that are public yet :)
 
 i'll have actual speed comparisons up soon!
 
-== [http://code.google.com/p/explorercanvas/ excanvas] lets me use [http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html the canvas element] i know and love. why doesn't !AutonCanvas just do that? ==
+== [http://code.google.com/p/explorercanvas/ excanvas] lets me use the canvas element i know and love. why doesn't !AutonCanvas just do that? ==
 
 excanvas is very slow when drawing even modestly complex scenes in Internet Explorer. using VML as a back-end for the canvas element will always be slow; a more VML-like API is needed for VML to be fast.
 
@@ -47,6 +47,6 @@ VML doesn't support a full transform matrix (without significant overhead), just
 
 VML does support rotation, which may be added in the future. i don't yet have a strong enough use case to justify the extra bugs i would introduce ;).
 
-== [http://raphaeljs.com/ Raphael] gives me DOM elements i'm familiar with. why does !AutonCanvas use [http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html the canvas element]? ==
+== [http://raphaeljs.com/ Raphael] gives me DOM elements i'm familiar with. why does !AutonCanvas use the canvas element? ==
 
-firefox and chrome seem to render the canvas element much faster than the alternative, [http://www.w3.org/TR/SVG/ SVG]. speed is the first design goal of !AutonCanvas.
+firefox and chrome seem to render the canvas element much faster than the alternative, SVG. speed is the first design goal of !AutonCanvas.
