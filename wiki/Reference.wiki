@@ -110,3 +110,33 @@ extends [#CanvasNode CanvasNode].
 || *`L`* || lineto || `x`, `y` || draws a line from the current point to `x,y`. || 1.0 ||
 || *`R`*, *`r`* || circleat, cwcircleat || `x`, `y`, `radius` || begins a new sub-path, and draws a circle centered at `x,y` with radius `radius`. `*R*` and *`r`* draw anticlockwise and clockwise circles, respectively. || 1.0 ||
 || *`E`* || delimit || _none_ || fills the current set of sub-paths with the path's fill, and begins a new set of sub-paths. || 1.0 ||
+
+== auton.canvas.Text ==
+
+extends [#CanvasNode CanvasNode].
+
+*main article*: [Text].
+
+|| *constructor* || *description* || *since* ||
+|| `Text([text:String [,font:String [,align:String [,valign:String]]]])` || creates a new [#auton.canvas.Text Text], with the given `text`, `font`, `align` and `valign`. see `text(text:String)`, `font(font:String)`, `align(align:String)` and `valign(align:String)` for meanings and requirements on these fields. || TODO ||
+
+|| *method* || *return type* || *description* || *since* ||
+|| `text()` || `String` || gets the displayed text value. || TODO ||
+|| `text(text:String)` || `this` || sets the displayed text value. || TODO ||
+|| `font()` || `String` || gets the font string. || TODO ||
+|| `font(font:String)` || `this` || sets the font string. the format is the same as [http://www.w3.org/TR/CSS2/fonts.html#font-shorthand the css shorthand "font" property]. || TODO ||
+|| `align()` || `String` || gets the horizontal alignment. || TODO ||
+|| `align(align:String)` || `this` || sets the horizontal alignment. must be one of the ALIGN constants, explained below. || TODO ||
+|| `valign()` || `String` || gets the vertical alignment. || TODO ||
+|| `valign(valign:String)` || `this` || sets the vertical alignment. must be one of the VALIGN constants, explained below. || TODO ||
+|| `stroke()` || `String` || gets the text color. || TODO ||
+|| `stroke(stroke:String)` || `this` || sets the text color. || TODO ||
+
+=== constants ===
+
+|| *name* || *value* || *description* || *since* ||
+|| `Text.ALIGN_LEFT` || `"left"` || left horizontal alignment. the [Basics#transformations x-origin] of the text will be at the leftmost edge. || TODO ||
+|| `Text.ALIGN_RIGHT` || `"right"` || right horizontal alignment. the [Basics#transformations x-origin] of the text will be at the rightmost edge. || TODO ||
+|| `Text.ALIGN_CENTER` || `"center"` || center horizontal alignment. the [Basics#transformations x-origin] of the text will be in the middle of the text. || TODO ||
+|| `Text.VALIGN_MIDDLE` || `"middle"` || middle vertical alignment. the [Basics#transformations y-origin] of the text will be in the middle of the text. || TODO ||
+|| `Text.VALIGN_BASELINE` || `"baseline"` || baseline vertical alignment. the [Basics#transformations y-origin] of the text will be at the alphabetic baseline of the text. || 1.2 ||
