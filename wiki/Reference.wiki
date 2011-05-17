@@ -135,11 +135,11 @@ extends [#CanvasNode CanvasNode].
 === constants ===
 
 || *name* || *value* || *description* || *since* ||
-|| `Text.ALIGN_LEFT` || `"left"` || left horizontal alignment. the [Basics#transformations x-origin] of the text will be at the leftmost edge. || TODO ||
-|| `Text.ALIGN_RIGHT` || `"right"` || right horizontal alignment. the [Basics#transformations x-origin] of the text will be at the rightmost edge. || TODO ||
-|| `Text.ALIGN_CENTER` || `"center"` || center horizontal alignment. the [Basics#transformations x-origin] of the text will be in the middle of the text. || TODO ||
-|| `Text.VALIGN_MIDDLE` || `"middle"` || middle vertical alignment. the [Basics#transformations y-origin] of the text will be in the middle of the text. || TODO ||
-|| `Text.VALIGN_BASELINE` || `"baseline"` || baseline vertical alignment. the [Basics#transformations y-origin] of the text will be at the alphabetic baseline of the text. || 1.2 ||
+|| `Text.ALIGN_LEFT` || `"left"` || left horizontal alignment. the x-origin of the text will be at the leftmost edge. see [Basics#transformations transformations]. || TODO ||
+|| `Text.ALIGN_RIGHT` || `"right"` || right horizontal alignment. the x-origin of the text will be at the rightmost edge. see [Basics#transformations transformations]. || TODO ||
+|| `Text.ALIGN_CENTER` || `"center"` || center horizontal alignment. the x-origin of the text will be in the middle of the text. see [Basics#transformations transformations]. || TODO ||
+|| `Text.VALIGN_MIDDLE` || `"middle"` || middle vertical alignment. the y-origin of the text will be in the middle of the text. see [Basics#transformations transformations]. || TODO ||
+|| `Text.VALIGN_BASELINE` || `"baseline"` || baseline vertical alignment. the y-origin of the text will be at the alphabetic baseline of the text. see [Basics#transformations transformations]. || 1.2 ||
 
 == auton.canvas.Image ==
 
@@ -153,9 +153,9 @@ extends [#CanvasNode CanvasNode].
 || *method* || *return type* || *description* || *since* ||
 || `src()` || `String` || gets the source URL. || 1.2 ||
 || `src(src:String)` || `this` || sets the source URL. || 1.2 ||
-|| `origin()` || `Array` || gets a user-specified [Basics#transformations origin], in the form `[ox, oy]`. || 1.2 ||
-|| `origin(x:Number, y:Number)` || `this` || sets a user-specified [Basics#transformations origin]. || 1.2 ||
-|| `originX()` || `Number` || gets the user-specified [Basics#transformations x-origin]. || 1.2 ||
-|| `originX(ox:Number)` || `this` || sets the user-specified [Basics#transformations x-origin]. || 1.2 ||
-|| `originY()` || `Number` || gets the user-specified [Basics#transformations y-origin]. || 1.2 ||
-|| `originY(oy:Number)` || `this` || sets the user-specified [Basics#transformations y-origin]. || 1.2 ||
+|| `origin()` || `Array` || gets a user-specified origin, in the form `[ox, oy]`. see [Basics#transformations transformations]. || 1.2 ||
+|| `origin(x:Number, y:Number)` || `this` || sets a user-specified origin. see [Basics#transformations transformations]. || 1.2 ||
+|| `originX()` || `Number` || gets the user-specified x-origin. see [Basics#transformations transformations]. || 1.2 ||
+|| `originX(ox:Number)` || `this` || sets the user-specified x-origin. see [Basics#transformations transformations]. || 1.2 ||
+|| `originY()` || `Number` || gets the user-specified y-origin. see [Basics#transformations transformations]. || 1.2 ||
+|| `originY(oy:Number)` || `this` || sets the user-specified y-origin. see [Basics#transformations transformations]. || 1.2 ||
