@@ -98,10 +98,10 @@ extends [#CanvasNode CanvasNode].
 || `stroke(stroke:undefined)` || `this` || unsets the stroke. || 1.0 ||
 || `strokeWidth()` || `Number` || gets the stroke width, in pixels. see [Path#transformations path transformations]. || 1.0 ||
 || `strokeWidth(strokeWidth:Number)` || `this` || sets the stroke width, in pixels. see [Path#transformations path transformations]. || 1.0 ||
-|| `bounds()` || `Array` || gets the coordinate bounds of the path data. see [TODO]. || 1.0 ||
-|| `bounds(minX:Number, minY:Number, maxX:Number, maxY:Number)` || `this` || sets the coordinate bounds of the path data. see [TODO]. || 1.0 ||
-|| `keep()` || `Boolean` || gets whether the [#auton.canvas.Path Path] should retain its `data` array after drawing. see [TODO]. || 1.2 ||
-|| `keep(keep:Boolean)` || `this` || sets whether the [#auton.canvas.Path Path] should retain its `data` array after drawing. see [TODO]. || 1.2 ||
+|| `bounds()` || `Array` || gets the coordinate bounds of the path data, in the form `[minX, minY, maxX, maxY]`. see [Path#data_coordinate_bounds path data coordinate bounds]. || 1.0 ||
+|| `bounds(minX:Number, minY:Number, maxX:Number, maxY:Number)` || `this` || sets the coordinate bounds of the path data. see [Path#data_coordinate_bounds path data coordinate bounds]. || 1.0 ||
+|| `keep()` || `Boolean` || gets whether the [#auton.canvas.Path Path] should retain its `data` array after drawing. see [Path#data_array_retention path data array retention]. || 1.2 ||
+|| `keep(keep:Boolean)` || `this` || sets whether the [#auton.canvas.Path Path] should retain its `data` array after drawing. see [Path#data_array_retention path data array retention]. || 1.2 ||
 
 === path instructions ===
 
