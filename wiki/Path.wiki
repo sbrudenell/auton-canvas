@@ -2,13 +2,13 @@
 
 = Path =
 
-[Path Paths] are the most versatile expressive objects in !AutonCanvas. they can draw arbitrary shapes, described by a language modeled on [http://www.w3.org/TR/SVG/paths.html#PathData SVG's path language].
+Paths are the most versatile expressive objects in !AutonCanvas. they can draw arbitrary shapes, described by a language modeled on [http://www.w3.org/TR/SVG/paths.html#PathData SVG's path language].
 
-a [Path] can be stroked (outlined), filled, or both. a single [Path] may only have one stroke color and one fill color.
+a Path can be stroked (outlined), filled, or both. a single Path may only have one stroke color and one fill color.
 
 = data =
 
-[Path] data is passed as an `Array` instead of a `String`, contrary to many graphics frameworks. in a data array, a path instruction is followed by a variable number of arguments. for example:
+Path data is passed as an `Array` instead of a `String`, contrary to many graphics frameworks. in a data array, a path instruction is followed by a variable number of arguments. for example:
 
 {{{
 // a circle, overlapping a square
@@ -28,9 +28,9 @@ the above data would draw a circle of radius `50` centered on `100,100`, overlap
 
 = colors =
 
-[Path] colors are passed as `String`s.
+Path colors are passed as `String`s.
 
-in the VML implementation, !AutonCanvas has special logic to handle `"rgba(...)"` strings, and the special string `"transparent"`, so alpha-blended [Path Paths] can be created in Internet Explorer 6-8.
+in the VML implementation, !AutonCanvas has special logic to handle `"rgba(...)"` strings, and the special string `"transparent"`, so alpha-blended Paths can be created in Internet Explorer 6-8.
 
 in all other cases, color `String`s are passed directly to the browser. it's a good idea to use HTML color strings like `"#0a0"`, which work in all browsers.
 
@@ -38,7 +38,7 @@ as of version 1.2, !AutonCanvas _does not_ specially handle `"hsl(...)"` or `"hs
 
 = fills =
 
-[Path Paths] support two styles of fill: simple (solid) fills, and two-tone linear gradient fills.
+Paths support two styles of fill: simple (solid) fills, and two-tone linear gradient fills.
 
 a simple fill is passed as just a [#colors color string]:
 
@@ -58,7 +58,7 @@ path.fill(['transparent', 'black'], Math.PI / 2);
 
 = transformations =
 
-unlike [http://www.w3.org/TR/SVG/ SVG] paths, _[Path] stroke lines never scale_. the default 1-pixel [Path] stroke will be 1 screen pixel wide even when the path is scaled by 10.
+unlike [http://www.w3.org/TR/SVG/ SVG] paths, _Path stroke lines never scale_. the default 1-pixel Path stroke will be 1 screen pixel wide even when the path is scaled by 10.
 
 = see also =
 
