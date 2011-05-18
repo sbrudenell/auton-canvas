@@ -71,4 +71,4 @@ firefox and chrome seem to render the canvas element much faster than the altern
 
 *IE9 does _NOT_ support the canvas element in quirks mode*, and does not support VML in any mode.
 
-IE9 does support SVG even in quirks mode, but i can't find a way to transform a path in SVG while keeping the original stroke width (see [Path#transformations path transformations), a severe visual incompatibility.
+IE9 does support SVG even in quirks mode, but i can't find a way to transform a path in SVG while keeping the original stroke width (see [Path#transformations path transformations]), a severe visual incompatibility.
