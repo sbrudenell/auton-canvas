@@ -1,0 +1,9 @@
+#summary a Canvas is a rectangular drawing region on a web page
+
+= Canvas =
+
+a Canvas is a rectangular drawing region on a web page.
+
+like [#todo the canvas element], a Canvas requires the user to specify width and height in screen pixels.
+
+TODO 
