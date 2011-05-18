@@ -50,6 +50,13 @@ i'll have actual speed comparisons up soon!
 
 excanvas is very slow when drawing even modestly complex scenes in Internet Explorer. using VML as a back-end for the canvas element will always be slow; a more VML-like API is needed for VML to be fast.
 
+== how do i optimize for speed? ==
+
+to maximize the speed of !AutonCanvas:
+
+ * combine many simple [Path Paths] into a single complex one. remember that a [Path] is backed by a separate DOM element in the VML implementation.
+ * for complex paths, always set the [Path#data_coordinate_bounds data coordinate bounds].
+
 == why are [Basics#transformations transformations] so limited? why not use a transform matrix like everyone else? ==
 
 VML doesn't support a full transform matrix (without significant overhead), just a few simple CSS rules.
