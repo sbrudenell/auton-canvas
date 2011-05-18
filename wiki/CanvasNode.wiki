@@ -1,0 +1,17 @@
+#summary the CanvasNode is the base type for all graphics objects.
+
+= !CanvasNode =
+
+!CanvasNode is the base type for all graphics objects.
+
+!CanvasNodes _are not DOM elements_. they can only live inside !AutonCanvas, attached to a [Group] or a [Canvas] directly.
+
+= transformations =
+
+!CanvasNodes can be scaled or moved around, but _not rotated_.
+
+unlike [http://www.w3.org/TR/SVG/ SVG] elements, !CanvasNodes _don't have a full transformation matrix_. they just have a stored scale and translation.
+
+= events =
+
+TODO
