@@ -1,4 +1,4 @@
-#summary overview of Path objects, the most versatile objects in AutonCanvas.
+#summary Paths are the most versatile objects in AutonCanvas.
 
 = Path =
 
