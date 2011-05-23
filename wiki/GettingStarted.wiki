@@ -1,4 +1,5 @@
 #summary this shows you how to get started with AutonCanvas.
+#labels Featured
 
 = Sample Code =
 
