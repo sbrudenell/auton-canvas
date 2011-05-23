@@ -9,5 +9,5 @@
    * [Path]
    * [Text]
    * [Image]
-   * [Code Reference]
+   * [Reference Code Reference]
  * [FAQ]
