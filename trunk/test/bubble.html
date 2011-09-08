@@ -20,22 +20,18 @@ function run() {
   var i, n = Number(document.getElementById("num").value);
   var data = [], l = 0;
 
-  //var w = Math.random() * W, h = Math.random() * H;
-  var w = 0, h = 0;
-
+  // construct the data array
   for (i = 0; i < n; i++) {
-    var cx = w + Math.random() * (W - w),
-        cy = h + Math.random() * (H - h),
+    var cx = Math.random() * W,
+        cy = Math.random() * H,
         r = Math.random() * R;
-    data.push(
-      "R", cx, cy, r,
-      //"r", cx, cy, r / 2,
-      "Z"
-    );
+    data.push("R", cx, cy, r, "E");
   }
 
+  // set the data array
   path.data(data);
-  path.bounds(w - R, h - R, W + R, H + R);
+  // set the data coordinate bounds, overestimating slightly
+  path.bounds(-R, -R, W + R, H + R);
 
   var start = new Date().getTime();
   canvas.draw();
