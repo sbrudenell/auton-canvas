@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+<title>javascript test</title>
+<script type="text/javascript" language="javascript" src="auton-canvas.min.js"></script>
+<script type="text/javascript" language="javascript">
+
+var W = 900, H = 450, R = 30;
+var canvas, path;
+
+window.onload = function() {
+  canvas = new auton.canvas.Canvas(W, H, "canvas");
+  path = canvas.path(["r", 50, 50, 50]);
+  path.fill(['#0a0', 'black']);
+  //path.stroke(null);
+  canvas.draw();
+}
+
+function run() {
+  var i, n = Number(document.getElementById("num").value);
+  var data = [], l = 0;
+
+  // construct the data array
+  for (i = 0; i < n; i++) {
+    var cx = Math.random() * W,
+        cy = Math.random() * H,
+        r = Math.random() * R;
+    data.push("R", cx, cy, r, "E");
+  }
+
+  // set the data array
+  path.data(data);
+  // set the data coordinate bounds, overestimating slightly
+  path.bounds(-R, -R, W + R, H + R);
+
+  var start = new Date().getTime();
+  canvas.draw();
+  var end = new Date().getTime();
+  setTimeout(function() {
+    var now = new Date().getTime();
+    document.getElementById('output').innerHTML = 'drew ' + n + ' bubbles in ' + (end - start) + 'ms (direct measurement) / ' + (now - start) + 'ms (timer tick)';
+  }, 0);
+}
+
+</script>
+</head>
+<body>
+<h1>bubble test</h1>
+<p>this test draws a bunch of circles using <a href="http://code.google.com/p/auton-canvas/">AutonCanvas</a>. check its speed in different browsers.</p>
+<p>note that overlapping circles don't render correctly in IE. it's possible to draw them correctly using many elements, instead of a single element having many circles, but this is much slower.</p>
+<div>
+<span>number of circles: <input type="text" id="num" name="num" value="1000" width="5"/></span>
+</div>
+<div>
+<button onclick="run()">draw</button><span id="output"></span>
+</div>
+<div id="canvas"></div>
+</body>
+</html>
