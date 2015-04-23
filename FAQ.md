@@ -1,0 +1,72 @@
+## what does this thing do? ##
+
+AutonCanvas draws simple vector graphics on the web. it's fast, even in IE, and doesn't need plugins.
+
+it uses the HTML5 canvas element or VML.
+
+while speedy, AutonCanvas is fairly low-level. you can think of it as the C of javascript graphics. :)
+
+## what browsers does it work with? ##
+
+  * Internet Explorer 6 through 8
+  * Internet Explorer 9 (standards mode only)
+  * Firefox 3.5+ (all features except [Text](Text.md) work in Firefox 3.0)
+  * Chrome (all versions)
+
+i have not tested AutonCanvas in Safari or Opera.
+
+## what would i use it for? ##
+
+dynamic visualizations! AutonCanvas was originally made to replace [JFreeChart](http://www.jfree.org/jfreechart/) for visualizing large datasets on the web.
+
+it should be possible to implement the flash-based [Google Finance chart widget](http://www.google.com/finance?q=NASDAQ:GOOG) entirely using AutonCanvas.
+
+if you need to draw complex graphics (lines with 1000+ features) quickly, AutonCanvas is your best bet.
+
+## i hear _(other library)_ is awesome. why would i want to use AutonCanvas? ##
+
+there are many featureful frameworks that draw graphics ([Raphael](http://raphaeljs.com/), [excanvas](http://code.google.com/p/explorercanvas/), [dojox gfx](http://docs.dojocampus.org/dojox/gfx)), but they suffer for speed in various situations.
+
+you _should not_ use AutonCanvas if:
+
+  * you don't need compatibility with IE6-8 (use [the canvas element](http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html) directly)
+  * you don't need fast drawing in IE6-8 (use [excanvas](http://code.google.com/p/explorercanvas/))
+  * you don't need complex graphics (use [dojox gfx](http://docs.dojocampus.org/dojox/gfx) or [Raphael](http://raphaeljs.com/))
+  * you require a high-level framework for animations (use [Raphael](http://raphaeljs.com/))
+  * you are okay with forcing your users to use flash ([don't](http://flashsucks.org/), if you can help it at all)
+  * you are okay with forcing your users to use java (definitely don't. java has all the same problems as flash, but is less supported)
+
+## are there any real-world usage examples? ##
+
+none that are public yet :)
+
+## how much faster is it, really? ##
+
+i'll have actual speed comparisons up soon!
+
+## [excanvas](http://code.google.com/p/explorercanvas/) lets me use the canvas element i know and love. why doesn't AutonCanvas just do that? ##
+
+excanvas is very slow when drawing even modestly complex scenes in Internet Explorer. using VML as a back-end for the canvas element will always be slow; a more VML-like API is needed for VML to be fast.
+
+## how do i optimize for speed? ##
+
+to maximize the speed of AutonCanvas:
+
+  * combine many simple [Paths](Path.md) into a single complex one. remember that a [Path](Path.md) is backed by a separate DOM element in the VML implementation.
+  * for complex paths, always set the [data coordinate bounds](Path#data_coordinate_bounds.md).
+
+## why are [transformations](Basics#transformations.md) so limited? why not use a transform matrix like everyone else? ##
+
+VML doesn't support a full transform matrix (without significant overhead), just a few simple CSS rules.
+
+VML does support rotation, which may be added in the future. i don't yet have a strong enough use case to justify the extra bugs i would introduce ;).
+
+## [Raphael](http://raphaeljs.com/) gives me DOM elements i'm familiar with. why does AutonCanvas use the canvas element? ##
+
+firefox and chrome seem to render the canvas element much faster than the alternative, SVG. speed is the first design goal of AutonCanvas.
+
+## why is there no support for IE9 in quirks mode? ##
+
+**IE9 does _NOT_ support the canvas element in quirks mode**, and does not support VML in any mode.
+
+IE9 does support SVG even in quirks mode, but i can't find a way to transform a path in SVG while keeping the original stroke width (see [path transformations](Path#transformations.md)), a severe visual incompatibility.

@@ -1,0 +1,30 @@
+# CanvasNode #
+
+CanvasNode is the base type for all graphics objects.
+
+CanvasNodes _are not DOM elements_. they can only live inside AutonCanvas, attached to a [Group](Group.md) or directly to a [Canvas](Canvas.md).
+
+# transformations #
+
+CanvasNodes can be scaled or moved around, but _not rotated_.
+
+unlike [SVG](http://www.w3.org/TR/SVG/) elements, CanvasNodes _don't have a full transformation matrix_. they just have a stored scale and translation.
+
+when rendering, the scale is applied _first_, followed by the translation.
+
+when rendering, transformations on a [Group](Group.md) or [Canvas](Canvas.md) apply recursively to all child elements.
+
+```
+// scale a path by 2 in both dimensions
+path.scale(2, 2);
+
+// move a path 50 units up
+path.translateY(-50);
+
+// shift everything in a canvas 100 pixels to the right
+canvas.translateX(100);
+```
+
+# events #
+
+TODO
