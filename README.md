@@ -129,7 +129,3 @@ It is fine to set the `bounds()` to be slightly larger than the actual path coor
 AutonCanvas does not immediately commit changes to the DOM. Instead it keeps a list of what was changed, and only commits them when `Canvas.draw()` is called. This is to keep synchronous processing to an absolute minimum.
 
 By default, an asynchronous call to `Canvas.draw()` is made (via `setTimeout()`) whenever any changes are made, so you don't need to call it yourself. You might call it synchronously if you are measuring the processing speed of `Canvas.draw()`. You might also call it in an event callback to try to get the screen to update faster (see [Engineering Concerns](#engineering-concerns). You will have to experiment with this.
-
-# API
-
-(TODO STILL!)
