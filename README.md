@@ -642,7 +642,7 @@ path = path.data(data);
 
 ### Path.keep(...)
 
-Sets or returns whether to trash the path data after drawing.
+Sets or returns whether to trash the path data after `Canvas.draw()`.
 
 ```javascript
 var keep = path.keep();
@@ -681,6 +681,20 @@ path = path.stroke(stroke);
 ```
 
 * `stroke`: A CSS color string for the `Path`'s stroke.
+
+### Path.strokeWidth(...)
+
+Sets or returns the stroke width (in pixels) for the `Path`.
+
+```javascript
+var strokeWidth = path.strokeWidth();
+```
+or
+```javascript
+path = path.strokeWidth(strokeWidth);
+```
+
+* `strokeWidth`: A number for the stroke width in pixels.
 
 ### Path.clear()
 
