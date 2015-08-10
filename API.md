@@ -327,6 +327,20 @@ text = text.valign(valign);
 
 * `valign`: The vertical alignment. May be `"middle"` or `"baseline"`.
 
+## Text.stroke(...)
+
+Set or return the color of the text element.
+
+```javascript
+var stroke = text.stroke();
+```
+or
+```javascript
+text = text.stroke(stroke);
+```
+
+* `stroke`: A CSS color string.
+
 # Image(...)
 
 Renders an external image on the canvas.
@@ -369,3 +383,92 @@ image = image.originY(y);
 
 * `x`: The origin x coordinate.
 * `y`: The origin y coordinate.
+
+# Path(...)
+
+An arbitrary path on the canvas.
+
+Usage:
+
+```javascript
+var path = auton.canvas.Path(data);
+```
+
+* `data`: A path data array.
+
+## Path.data(...)
+
+Sets or returns the current path data array.
+
+```javascript
+var data = path.data();
+```
+or
+```javascript
+path = path.data(data);
+```
+
+* `data`: A path data array.
+
+## Path.keep(...)
+
+Sets or returns whether to trash the path data after drawing.
+
+```javascript
+var keep = path.keep();
+```
+or
+```javascript
+path = path.keep(keep);
+```
+
+* `keep`: A boolean for whether to keep the path data after drawing.
+
+## Path.fill(...)
+
+Sets or returns the fill color for the path.
+
+```javascript
+var fill = path.fill();
+```
+or
+```javascript
+path = path.fill(fill);
+```
+
+* `fill`: A CSS color string for the fill.
+
+## Path.stroke(...)
+
+Sets or returns the stroke color for the path.
+
+```javascript
+var stroke = path.stroke();
+```
+or
+```javascript
+path = path.stroke(stroke);
+```
+
+* `stroke`: A CSS color string for the path's stroke.
+
+## Path.clear()
+
+Clear all path data. Equivalent to `path.data(undefined)`.
+
+## Path.bounds(...)
+
+Sets or returns the coordinate bounds of the path's data array.
+
+```javascript
+var minX_minY_maxX_maxY_array = path.bounds();
+```
+or
+```javascript
+path = path.bounds(minX, minY, maxX, maxY);
+```
+
+* `minX`: The minimum X coordinate used.
+* `minY`: The minimum Y coordinate used.
+* `maxX`: The maximum X coordinate used.
+* `maxY`: The maximum Y coordinate used.
