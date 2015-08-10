@@ -4,7 +4,7 @@ An AutonCanvas object. All Elements (`Canvas`, `Group`, `Path`, etc) support the
 
 ## Element.canvas()
 
-Returns the root Canvas for this Element.
+Returns the root `Canvas` for this Element.
 
 ```javascript
 var canvas = element.canvas();
@@ -12,23 +12,23 @@ var canvas = element.canvas();
 
 ## Element.parent()
 
-Returns this Element's parent Container.
+Returns this `Element`'s parent Container.
 
 ## Element.toFront()
 
-Move the element to the foreground, within its parent Container.
+Move the `Element` to the foreground, within its parent `Container`.
 
 ## Element.toBack()
 
-Move the element to the background, within its parent Container.
+Move the `Element` to the background, within its parent `Container`.
 
 ## Element.remove()
 
-Removes this element from its parent Container.
+Removes this `Element` from its parent `Container`.
 
 ## Element.visible(...)
 
-Returns or sets the visibility of the element.
+Returns or sets the visibility of the `Element`.
 
 ```javascript
 var visible = element.visible();
@@ -38,7 +38,7 @@ or
 element = element.visible(visible);
 ```
 
-* `visible`: A boolean for the visibility of the element.
+* `visible`: A boolean for the visibility of the `Element`.
 
 ## Element.show()
 
@@ -50,7 +50,7 @@ Equivalent to `element.visible(false)`.
 
 ## Element.translate(...)
 
-Get or set the translation of the contents of the element.
+Get or set the translation of the contents of the `Element`.
 
 ```javascript
 var x_y_array = element.translate();
@@ -69,7 +69,7 @@ element = element.translateY(y);
 
 ## Element.scale(...)
 
-Get or set the scaling of the contents of the element.
+Get or set the scaling of the contents of the `Element`.
 
 ```javascript
 var x_y_array = element.scale();
@@ -88,7 +88,7 @@ element = element.scaleY(y);
 
 ## Element.transform(...)
 
-Get or set both the scale and translation of the element.
+Get or set both the scale and translation of the `Element`.
 
 ```javascript
 var transform = element.transform();
@@ -106,13 +106,13 @@ element = element.transform(tx, ty, sx, sy);
 
 # Container
 
-A Container is an Element that contains other Elements. Any transformations applied to a Container are applied to its children.
+A `Container` is an `Element` that contains other `Elements`. Any transformations applied to a `Container` are applied to its children.
 
-`Canvas` and `Group` Elements support these methods.
+`Canvas` and `Group` support these methods.
 
 ## Container.text(...)
 
-Create a new Text and add it as a child of this Container.
+Create a new `Text` and add it as a child of this `Container`.
 
 ```javascript
 var textElement = container.text(text, font, align, valign);
@@ -125,7 +125,7 @@ var textElement = container.text(text, font, align, valign);
 
 ## Container.image(...)
 
-Create a new Image and add it as a child of this Container.
+Create a new `Image` and add it as a child of this `Container`.
 
 ```javascript
 var imageElement = container.image(src);
@@ -135,7 +135,7 @@ var imageElement = container.image(src);
 
 ## Container.path(...)
 
-Create a new Path and add it as a child of this container.
+Create a new `Path` and add it as a child of this `Container`.
 
 ```javascript
 var path = container.path(data);
@@ -145,7 +145,7 @@ var path = container.path(data);
 
 ## Container.group(...)
 
-Create a new Group container and add it as a child of this Container.
+Create a new `Group` container and add it as a child of this `Container`.
 
 ```javascript
 var group = container.group();
@@ -153,13 +153,13 @@ var group = container.group();
 
 ## Container.add(...)
 
-Add a child Element to this container.
+Add a child `Element` to this `Container`.
 
 ```javascript
 container = container.add(element);
 ```
 
-* `element`: a child Element. 
+* `element`: a child `Element`. 
 
 ## Container.insertBefore(...)
 
@@ -193,7 +193,7 @@ Remove all child `Element`s.
 
 # Canvas(...)
 
-Constructs a canvas anchored at a DOM element.
+Constructs a `Canvas` anchored at a DOM element.
 
 ```javascript
 var canvas = auton.canvas.Canvas(width, height, elementId);
@@ -210,11 +210,11 @@ var canvas = auton.canvas.Canvas(width, height, element);
 
 ## Canvas.element()
 
-Returns the DOM element anchor point for the Canvas.
+Returns the DOM element anchor point for the `Canvas`.
 
 ## Canvas.width(...)
 
-Sets or returns the canvas width in pixels.
+Sets or returns the `Canvas` width in pixels.
 
 ```javascript
 var width = canvas.width();
@@ -224,11 +224,11 @@ or
 canvas = canvas.width(width);
 ```
 
-* `width`: The canvas width in pixels.
+* `width`: The `Canvas` width in pixels.
 
 ## Canvas.height(...)
 
-Sets or returns the canvas height in pixels.
+Sets or returns the `Canvas` height in pixels.
 
 ```javascript
 var height = canvas.height();
@@ -238,17 +238,17 @@ or
 canvas = canvas.height(height);
 ```
 
-* `height`: The canvas height in pixels.
+* `height`: The `Canvas` height in pixels.
 
 ## Canvas.draw()
 
-Commits any changes in the Canvas' content and updates the DOM.
+Commits any changes in the `Canvas`' content and updates the DOM.
 
 **NOTE**: Normally, you shouldn't need to call this. It gets called asynchronously via `setTimeout` whenever any changes are made. Only consider calling it if you're doing profiling, or playing with event handler timings.
 
 # Group(...)
 
-A group of elements. Any transformations on the `Group` are applied to its children.
+A group of `Element`s. Any transformations on the `Group` are applied to its children.
 
 ```javascript
 var group = auton.canvas.Group();
@@ -256,9 +256,9 @@ var group = auton.canvas.Group();
 
 # Text(...)
 
-A piece of text to draw on the canvas.
+A piece of text to draw on the `Canvas`.
 
-**Note**: Scaling text is currently not implemented in VML. Where possible, it's a much better idea to keep the text at a scale of 1 and change the font size.
+**Note**: Scaling text is currently not implemented in VML. Where possible, it's a much better idea to keep the `Text` at a scale of 1 and change the font size.
 
 ```javascript
 var text = auton.canvas.Text(textValue, font, align, valign);
@@ -285,7 +285,7 @@ text = text.text(textValue);
 
 ## Text.font(...)
 
-Sets or returns the CSS font.
+Sets or returns the CSS font string.
 
 ```javascript
 var font = text.font();
@@ -329,7 +329,7 @@ text = text.valign(valign);
 
 ## Text.stroke(...)
 
-Set or return the color of the text element.
+Set or return the color of the `Text`.
 
 ```javascript
 var stroke = text.stroke();
@@ -343,7 +343,7 @@ text = text.stroke(stroke);
 
 # Image(...)
 
-Renders an external image on the canvas.
+Renders an external image on the `Canvas`.
 
 ```javascript
 var image = auton.canvas.Image(src);
@@ -353,7 +353,7 @@ var image = auton.canvas.Image(src);
 
 ## Image.src(...)
 
-Sets or returns the source URL.
+Sets or returns the source URL of the `Image`.
 
 ```javascript
 var src = image.src();
@@ -367,7 +367,7 @@ image = image.src(src);
 
 ## Image.origin(...)
 
-Sets or returns the offset origin of the `Image`. This is separate from `Element.translate()`, since it can be useful to set a "center" point for the image and treat translations as relative to the center.
+Sets or returns the offset origin of the `Image`. This is separate from `Element.translate()`, since it can be useful to set a "center" point for the `Image` and treat translations as relative to the center.
 
 ```javascript
 var x_y_array = image.origin();
@@ -386,7 +386,7 @@ image = image.originY(y);
 
 # Path(...)
 
-An arbitrary path on the canvas.
+An arbitrary path on the `Canvas`.
 
 Usage:
 
@@ -426,7 +426,7 @@ path = path.keep(keep);
 
 ## Path.fill(...)
 
-Sets or returns the fill color for the path.
+Sets or returns the fill color for the `Path`.
 
 ```javascript
 var fill = path.fill();
@@ -436,11 +436,11 @@ or
 path = path.fill(fill);
 ```
 
-* `fill`: A CSS color string for the fill.
+* `fill`: A CSS color string for the `Path`'s fill.
 
 ## Path.stroke(...)
 
-Sets or returns the stroke color for the path.
+Sets or returns the stroke color for the `Path`.
 
 ```javascript
 var stroke = path.stroke();
@@ -450,7 +450,7 @@ or
 path = path.stroke(stroke);
 ```
 
-* `stroke`: A CSS color string for the path's stroke.
+* `stroke`: A CSS color string for the `Path`'s stroke.
 
 ## Path.clear()
 
@@ -458,7 +458,7 @@ Clear all path data. Equivalent to `path.data(undefined)`.
 
 ## Path.bounds(...)
 
-Sets or returns the coordinate bounds of the path's data array.
+Sets or returns the coordinate bounds of the path data array.
 
 ```javascript
 var minX_minY_maxX_maxY_array = path.bounds();
